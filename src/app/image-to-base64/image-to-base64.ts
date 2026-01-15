@@ -1,5 +1,6 @@
-import { Component, signal, computed, effect } from '@angular/core';
+import { Component, signal, computed, effect, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { SnackbarService } from '../shared/snackbar.service';
 
 interface ImageInfo {
   width: number;
@@ -14,6 +15,7 @@ interface ImageInfo {
   styleUrl: './image-to-base64.scss',
 })
 export class ImageToBase64 {
+  private readonly snackbarService = inject(SnackbarService);
   protected readonly optimize = signal(false);
   protected readonly base64Result = signal<string>('');
   protected readonly fileName = signal<string>('');
@@ -64,13 +66,13 @@ export class ImageToBase64 {
     // Check file size (5MB max)
     const maxSize = 5 * 1024 * 1024; // 5MB
     if (file.size > maxSize) {
-      alert('File size exceeds 5MB limit. Please choose a smaller image.');
+      this.snackbarService.error('File size exceeds 5MB limit. Please choose a smaller image.');
       return;
     }
 
     // Check if it's an image
     if (!file.type.startsWith('image/')) {
-      alert('Please select a valid image file.');
+      this.snackbarService.error('Please select a valid image file.');
       return;
     }
 
@@ -115,7 +117,7 @@ export class ImageToBase64 {
     };
     reader.onerror = () => {
       this.isProcessing.set(false);
-      alert('Error reading file');
+      this.snackbarService.error('Error reading file');
     };
     reader.readAsDataURL(file);
   }
@@ -167,7 +169,7 @@ export class ImageToBase64 {
       };
       img.onerror = () => {
         this.isProcessing.set(false);
-        alert('Error loading image');
+        this.snackbarService.error('Error loading image');
       };
       img.src = e.target?.result as string;
     };
@@ -197,10 +199,10 @@ export class ImageToBase64 {
   protected copyToClipboard(): void {
     navigator.clipboard.writeText(this.base64Result()).then(
       () => {
-        alert('Base64 string copied to clipboard!');
+        this.snackbarService.success('Base64 string copied to clipboard!');
       },
       () => {
-        alert('Failed to copy to clipboard');
+        this.snackbarService.error('Failed to copy to clipboard');
       },
     );
   }

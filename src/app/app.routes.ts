@@ -14,6 +14,14 @@ export const routes: Routes = [
     loadComponent: () => import('./sha1-converter/sha1-converter').then((m) => m.Sha1Converter),
   },
   {
+    path: 'jwt',
+    loadComponent: () => import('./jwt-decoder/jwt-decoder').then((m) => m.JwtDecoder),
+  },
+  {
+    path: 'color-picker',
+    loadComponent: () => import('./color-picker/color-picker').then((m) => m.ColorPicker),
+  },
+  {
     path: '**',
     redirectTo: '',
   },

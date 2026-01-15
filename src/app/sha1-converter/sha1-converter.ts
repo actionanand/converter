@@ -1,5 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { SnackbarService } from '../shared/snackbar.service';
 
 @Component({
   selector: 'app-sha1-converter',
@@ -8,6 +9,7 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './sha1-converter.scss',
 })
 export class Sha1Converter {
+  private readonly snackbarService = inject(SnackbarService);
   protected readonly inputText = signal('');
   protected readonly sha1Result = signal('');
 
@@ -37,10 +39,10 @@ export class Sha1Converter {
 
     navigator.clipboard.writeText(this.sha1Result()).then(
       () => {
-        alert('SHA1 hash copied to clipboard!');
+        this.snackbarService.success('SHA1 hash copied to clipboard!');
       },
       () => {
-        alert('Failed to copy to clipboard');
+        this.snackbarService.error('Failed to copy to clipboard');
       },
     );
   }

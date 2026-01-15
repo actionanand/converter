@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
@@ -8,12 +8,32 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
     <nav class="navbar">
       <div class="nav-container">
         <a routerLink="/" class="nav-brand">Converter Tools</a>
-        <ul class="nav-links">
+        <button
+          class="hamburger"
+          (click)="toggleMenu()"
+          [class.active]="isMenuOpen()"
+          aria-label="Toggle navigation menu"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <ul class="nav-links" [class.active]="isMenuOpen()">
           <li>
-            <a routerLink="/image-to-base64" routerLinkActive="active">Image to Base64</a>
+            <a routerLink="/image-to-base64" routerLinkActive="active" (click)="closeMenu()"
+              >Image to Base64</a
+            >
           </li>
           <li>
-            <a routerLink="/sha1" routerLinkActive="active">String to SHA1</a>
+            <a routerLink="/sha1" routerLinkActive="active" (click)="closeMenu()">SHA1</a>
+          </li>
+          <li>
+            <a routerLink="/jwt" routerLinkActive="active" (click)="closeMenu()">JWT Decoder</a>
+          </li>
+          <li>
+            <a routerLink="/color-picker" routerLinkActive="active" (click)="closeMenu()"
+              >Color Picker</a
+            >
           </li>
         </ul>
       </div>
@@ -33,6 +53,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
       display: flex;
       justify-content: space-between;
       align-items: center;
+      position: relative;
     }
 
     .nav-brand {
@@ -40,16 +61,48 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
       font-size: 1.5rem;
       font-weight: bold;
       text-decoration: none;
+      z-index: 1001;
 
       &:hover {
         color: #3498db;
       }
     }
 
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.5rem;
+      z-index: 1001;
+
+      span {
+        display: block;
+        width: 25px;
+        height: 3px;
+        background-color: white;
+        transition: all 0.3s ease;
+      }
+
+      &.active span:nth-child(1) {
+        transform: rotate(45deg) translate(8px, 8px);
+      }
+
+      &.active span:nth-child(2) {
+        opacity: 0;
+      }
+
+      &.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(7px, -7px);
+      }
+    }
+
     .nav-links {
       list-style: none;
       display: flex;
-      gap: 2rem;
+      gap: 1rem;
       margin: 0;
       padding: 0;
     }
@@ -60,6 +113,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
       padding: 0.5rem 1rem;
       border-radius: 4px;
       transition: all 0.3s ease;
+      white-space: nowrap;
 
       &:hover {
         background-color: #34495e;
@@ -71,6 +125,54 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
         color: white;
       }
     }
+
+    @media (max-width: 768px) {
+      .hamburger {
+        display: flex;
+      }
+
+      .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        height: 100vh;
+        width: 70%;
+        max-width: 300px;
+        background-color: #2c3e50;
+        flex-direction: column;
+        padding: 5rem 2rem 2rem;
+        gap: 0;
+        box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
+        transition: right 0.3s ease;
+        z-index: 1000;
+
+        &.active {
+          right: 0;
+        }
+
+        li {
+          width: 100%;
+          border-bottom: 1px solid #34495e;
+        }
+
+        a {
+          display: block;
+          width: 100%;
+          padding: 1rem;
+          border-radius: 0;
+        }
+      }
+    }
   `,
 })
-export class Navbar {}
+export class Navbar {
+  protected readonly isMenuOpen = signal(false);
+
+  protected toggleMenu(): void {
+    this.isMenuOpen.update((value) => !value);
+  }
+
+  protected closeMenu(): void {
+    this.isMenuOpen.set(false);
+  }
+}

@@ -420,6 +420,41 @@ h4 {
   }
 }
 
+.external-tools {
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  background-color: #f0f4f8;
+  border-radius: 8px;
+  border-left: 4px solid #3498db;
+
+  h4 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+  }
+
+  .external-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #2980b9;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    background-color: white;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    &:hover {
+      background-color: #2980b9;
+      color: white;
+      transform: translateX(4px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+  }
+}
+
 .specs-table {
   width: 100%;
   border-collapse: collapse;

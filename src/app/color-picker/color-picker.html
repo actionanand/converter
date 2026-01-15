@@ -1,0 +1,263 @@
+<div class="converter-container">
+  <div class="header-section">
+    <h1>Color Picker & Palette Generator</h1>
+    <div class="animated-icon">🎨</div>
+  </div>
+
+  <div class="card">
+    <div class="color-picker-section">
+      <div class="main-color-display" [style.background-color]="selectedColor()">
+        <div class="color-overlay">
+          <h2>{{ colorFormats().hex }}</h2>
+        </div>
+      </div>
+
+      <div class="picker-controls">
+        <div class="control-group">
+          <label for="color-picker" class="label">Color Picker:</label>
+          <input
+            type="color"
+            id="color-picker"
+            [value]="selectedColor()"
+            (input)="onColorChange($event)"
+            class="color-input"
+          />
+        </div>
+
+        <div class="control-group">
+          <label for="hex-input" class="label">Hex Code:</label>
+          <div class="input-with-button">
+            <input
+              type="text"
+              id="hex-input"
+              [(ngModel)]="hexInput"
+              (input)="onHexInputChange()"
+              placeholder="#3498db"
+              class="text-input"
+            />
+            <button (click)="copyFormat('HEX', colorFormats().hex)" class="btn-copy">📋</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="rgb-controls">
+        <h3>RGB Values:</h3>
+        <div class="rgb-sliders">
+          <div class="slider-group">
+            <span class="slider-label">R: {{ rgbR() }}</span>
+            <input
+              type="range"
+              min="0"
+              max="255"
+              [(ngModel)]="rgbR"
+              (input)="onRgbChange()"
+              class="slider red-slider"
+              aria-label="Red color value"
+            />
+          </div>
+          <div class="slider-group">
+            <span class="slider-label">G: {{ rgbG() }}</span>
+            <input
+              type="range"
+              min="0"
+              max="255"
+              [(ngModel)]="rgbG"
+              (input)="onRgbChange()"
+              class="slider green-slider"
+              aria-label="Green color value"
+            />
+          </div>
+          <div class="slider-group">
+            <span class="slider-label">B: {{ rgbB() }}</span>
+            <input
+              type="range"
+              min="0"
+              max="255"
+              [(ngModel)]="rgbB"
+              (input)="onRgbChange()"
+              class="slider blue-slider"
+              aria-label="Blue color value"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="formats-section">
+      <h3>Color Formats:</h3>
+      <div class="format-grid">
+        <div class="format-item">
+          <div class="format-label">HEX</div>
+          <div class="format-value">{{ colorFormats().hex }}</div>
+          <button (click)="copyFormat('HEX', colorFormats().hex)" class="btn-small">Copy</button>
+        </div>
+        <div class="format-item">
+          <div class="format-label">RGB</div>
+          <div class="format-value">{{ colorFormats().rgb }}</div>
+          <button (click)="copyFormat('RGB', colorFormats().rgb)" class="btn-small">Copy</button>
+        </div>
+        <div class="format-item">
+          <div class="format-label">HSL</div>
+          <div class="format-value">{{ colorFormats().hsl }}</div>
+          <button (click)="copyFormat('HSL', colorFormats().hsl)" class="btn-small">Copy</button>
+        </div>
+        <div class="format-item">
+          <div class="format-label">HSV</div>
+          <div class="format-value">{{ colorFormats().hsv }}</div>
+          <button (click)="copyFormat('HSV', colorFormats().hsv)" class="btn-small">Copy</button>
+        </div>
+        <div class="format-item">
+          <div class="format-label">CMYK</div>
+          <div class="format-value">{{ colorFormats().cmyk }}</div>
+          <button (click)="copyFormat('CMYK', colorFormats().cmyk)" class="btn-small">Copy</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shades -->
+  <div class="card">
+    <h2>🎭 Color Shades</h2>
+    <p class="subtitle">From light to dark variations of your selected color</p>
+    <div class="shades-grid">
+      @for (shade of shades(); track shade) {
+        <button
+          class="shade-box"
+          [style.background-color]="shade"
+          (click)="useColor(shade)"
+          [attr.aria-label]="'Use color ' + shade"
+          [attr.title]="shade"
+        >
+          <span class="shade-value">{{ shade }}</span>
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Color Harmonies -->
+  <div class="card">
+    <h2>🌈 Color Harmonies</h2>
+
+    <div class="harmony-section">
+      <h3>Complementary Colors:</h3>
+      <p class="harmony-description">Colors opposite on the color wheel, creating high contrast</p>
+      <div class="harmony-grid">
+        <button
+          class="harmony-box"
+          [style.background-color]="selectedColor()"
+          (click)="useColor(selectedColor())"
+          [attr.aria-label]="'Use color ' + selectedColor()"
+        >
+          <span class="harmony-value">{{ selectedColor() }}</span>
+        </button>
+        <button
+          class="harmony-box"
+          [style.background-color]="complementary()"
+          (click)="useColor(complementary())"
+          [attr.aria-label]="'Use complementary color ' + complementary()"
+        >
+          <span class="harmony-value">{{ complementary() }}</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="harmony-section">
+      <h3>Analogous Colors:</h3>
+      <p class="harmony-description">
+        Adjacent colors on the color wheel, creating harmonious combinations
+      </p>
+      <div class="harmony-grid">
+        @for (color of analogous(); track color) {
+          <button
+            class="harmony-box"
+            [style.background-color]="color"
+            (click)="useColor(color)"
+            [attr.aria-label]="'Use analogous color ' + color"
+          >
+            <span class="harmony-value">{{ color }}</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="harmony-section">
+      <h3>Triadic Colors:</h3>
+      <p class="harmony-description">Evenly spaced on the color wheel, creating vibrant palettes</p>
+      <div class="harmony-grid">
+        @for (color of triadic(); track color) {
+          <button
+            class="harmony-box"
+            [style.background-color]="color"
+            (click)="useColor(color)"
+            [attr.aria-label]="'Use triadic color ' + color"
+          >
+            <span class="harmony-value">{{ color }}</span>
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Information -->
+  <div class="info-card">
+    <h2>📚 Color Formats Explained</h2>
+
+    <div class="info-content">
+      <div class="format-explanation">
+        <h3>HEX (Hexadecimal)</h3>
+        <p>
+          Six-digit code representing RGB values in hexadecimal (base-16). Format:
+          <code>#RRGGBB</code>
+        </p>
+        <p>
+          <strong>Example:</strong> <code>#3498db</code> = Red: 34, Green: 98, Blue: db (219 in
+          decimal)
+        </p>
+        <p><strong>Use in CSS:</strong> <code>color: #3498db;</code></p>
+      </div>
+
+      <div class="format-explanation">
+        <h3>RGB (Red, Green, Blue)</h3>
+        <p>Additive color model using values 0-255 for each color channel.</p>
+        <p><strong>Example:</strong> <code>rgb(52, 152, 219)</code></p>
+        <p><strong>Use in CSS:</strong> <code>background: rgb(52, 152, 219);</code></p>
+        <p><strong>With alpha:</strong> <code>rgba(52, 152, 219, 0.5);</code></p>
+      </div>
+
+      <div class="format-explanation">
+        <h3>HSL (Hue, Saturation, Lightness)</h3>
+        <p>More intuitive for humans. Hue (0-360°), Saturation (0-100%), Lightness (0-100%).</p>
+        <p><strong>Example:</strong> <code>hsl(204, 70%, 53%)</code></p>
+        <p><strong>Use in CSS:</strong> <code>color: hsl(204, 70%, 53%);</code></p>
+      </div>
+
+      <div class="format-explanation">
+        <h3>HSV (Hue, Saturation, Value)</h3>
+        <p>Similar to HSL but with Value instead of Lightness. Common in color pickers.</p>
+        <p><strong>Example:</strong> <code>hsv(204, 76%, 86%)</code></p>
+        <p>
+          <strong>Note:</strong> Not directly supported in CSS, but useful for color manipulation
+        </p>
+      </div>
+
+      <div class="format-explanation">
+        <h3>CMYK (Cyan, Magenta, Yellow, Key/Black)</h3>
+        <p>Subtractive color model used in printing. Values are percentages.</p>
+        <p><strong>Example:</strong> <code>cmyk(76%, 31%, 0%, 14%)</code></p>
+        <p><strong>Note:</strong> Used for print design, not web development</p>
+      </div>
+
+      <h3>🎨 Color Theory Tips:</h3>
+      <ul class="tips-list">
+        <li><strong>60-30-10 Rule:</strong> Use 60% dominant color, 30% secondary, 10% accent</li>
+        <li>
+          <strong>Contrast:</strong> Ensure text has sufficient contrast for readability (WCAG AA:
+          4.5:1)
+        </li>
+        <li><strong>Complementary:</strong> Great for call-to-action buttons and highlights</li>
+        <li><strong>Analogous:</strong> Perfect for creating serene, comfortable designs</li>
+        <li><strong>Triadic:</strong> Provides visual contrast while maintaining harmony</li>
+      </ul>
+    </div>
+  </div>
+</div>
