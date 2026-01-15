@@ -1,0 +1,112 @@
+<div class="converter-container">
+  <div class="header-section">
+    <h1>Character & Word Counter</h1>
+    <div class="animated-icon">📊</div>
+  </div>
+
+  <div class="card">
+    <div class="controls">
+      <button (click)="clearText()" class="btn-secondary">🗑️ Clear Text</button>
+      <button (click)="loadSample()" class="btn-secondary">📄 Load Sample</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>✍️ Enter Your Text</h2>
+    <textarea
+      [(ngModel)]="text"
+      placeholder="Start typing or paste your text here..."
+      class="text-input"
+      rows="15"
+      aria-label="Text input for counting"
+    ></textarea>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">🔤</div>
+      <div class="stat-value">{{ stats().characters }}</div>
+      <div class="stat-label">Characters</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">✂️</div>
+      <div class="stat-value">{{ stats().charactersNoSpaces }}</div>
+      <div class="stat-label">Characters (no spaces)</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">📝</div>
+      <div class="stat-value">{{ stats().words }}</div>
+      <div class="stat-label">Words</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">📄</div>
+      <div class="stat-value">{{ stats().lines }}</div>
+      <div class="stat-label">Lines</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">📋</div>
+      <div class="stat-value">{{ stats().paragraphs }}</div>
+      <div class="stat-label">Paragraphs</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">💬</div>
+      <div class="stat-value">{{ stats().sentences }}</div>
+      <div class="stat-label">Sentences</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">⏱️</div>
+      <div class="stat-value">{{ stats().readingTime }}</div>
+      <div class="stat-label">Reading Time</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">📏</div>
+      <div class="stat-value">{{ stats().averageWordLength }}</div>
+      <div class="stat-label">Avg. Word Length</div>
+    </div>
+  </div>
+
+  @if (topWords().length > 0) {
+    <div class="card">
+      <h2>🔝 Most Frequent Words</h2>
+      <p class="subtitle">Top 10 words (excluding words with 3 or fewer characters)</p>
+      <div class="word-list">
+        @for (item of topWords(); track item.word) {
+          <div class="word-item">
+            <div class="word-bar-container">
+              <div
+                class="word-bar"
+                [style.width.%]="(item.count / topWords()[0].count) * 100"
+              ></div>
+              <div class="word-info">
+                <span class="word-text">{{ item.word }}</span>
+                <span class="word-count">{{ item.count }}</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <div class="info-card">
+    <h3>ℹ️ About Word Counter</h3>
+    <p>
+      This tool provides detailed statistics about your text, including character count, word count,
+      reading time, and more. It's useful for:
+    </p>
+    <ul>
+      <li><strong>Writing:</strong> Track your progress toward word count goals</li>
+      <li><strong>SEO:</strong> Optimize content length for search engines</li>
+      <li><strong>Social Media:</strong> Stay within character limits</li>
+      <li><strong>Reading Time:</strong> Estimate how long it takes to read your content</li>
+      <li><strong>Word Analysis:</strong> Find the most frequently used words</li>
+    </ul>
+  </div>
+</div>

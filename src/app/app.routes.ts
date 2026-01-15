@@ -22,6 +22,22 @@ export const routes: Routes = [
     loadComponent: () => import('./color-picker/color-picker').then((m) => m.ColorPicker),
   },
   {
+    path: 'text-compare',
+    loadComponent: () => import('./text-compare/text-compare').then((m) => m.TextCompare),
+  },
+  {
+    path: 'json-formatter',
+    loadComponent: () => import('./json-formatter/json-formatter').then((m) => m.JsonFormatter),
+  },
+  {
+    path: 'word-counter',
+    loadComponent: () => import('./word-counter/word-counter').then((m) => m.WordCounter),
+  },
+  {
+    path: 'lorem-ipsum',
+    loadComponent: () => import('./lorem-ipsum/lorem-ipsum').then((m) => m.LoremIpsum),
+  },
+  {
     path: '**',
     redirectTo: '',
   },

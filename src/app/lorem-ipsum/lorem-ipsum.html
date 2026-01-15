@@ -1,0 +1,85 @@
+<div class="converter-container">
+  <div class="header-section">
+    <h1>Lorem Ipsum Generator</h1>
+    <div class="animated-icon">📜</div>
+  </div>
+
+  <div class="card">
+    <h2>⚙️ Generation Options</h2>
+    <div class="options-grid">
+      <div class="option-group">
+        <label for="paragraph-count">Number of Paragraphs:</label>
+        <input
+          type="number"
+          id="paragraph-count"
+          [(ngModel)]="paragraphCount"
+          min="1"
+          max="20"
+          class="number-input"
+        />
+      </div>
+
+      <div class="option-group">
+        <label for="words-per-paragraph">Words per Paragraph:</label>
+        <input
+          type="number"
+          id="words-per-paragraph"
+          [(ngModel)]="wordsPerParagraph"
+          min="10"
+          max="200"
+          class="number-input"
+        />
+      </div>
+
+      <div class="option-group checkbox-group">
+        <label class="checkbox-label">
+          <input type="checkbox" [(ngModel)]="startWithLorem" />
+          <span>Start with "Lorem ipsum"</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="button-group">
+      <button (click)="generate()" class="btn-primary">✨ Generate</button>
+      <button (click)="copyText()" [disabled]="!generatedText()" class="btn-secondary">
+        📋 Copy
+      </button>
+      <button (click)="clearText()" [disabled]="!generatedText()" class="btn-secondary">
+        🗑️ Clear
+      </button>
+    </div>
+  </div>
+
+  @if (generatedText()) {
+    <div class="card">
+      <h2>📝 Generated Text</h2>
+      <div class="stats-mini">
+        <span>{{ stats().paragraphs }} paragraphs</span>
+        <span>{{ stats().words }} words</span>
+        <span>{{ stats().characters }} characters</span>
+      </div>
+      <div class="generated-output">{{ generatedText() }}</div>
+    </div>
+  }
+
+  <div class="info-card">
+    <h3>ℹ️ About Lorem Ipsum</h3>
+    <p>
+      Lorem ipsum is placeholder text commonly used in the graphic, print, and publishing industries
+      for previewing layouts and visual mockups.
+    </p>
+    <h4>💡 Common Uses:</h4>
+    <ul>
+      <li><strong>Web Design:</strong> Fill content areas while designing layouts</li>
+      <li><strong>Print Design:</strong> Test typography and spacing</li>
+      <li><strong>Presentations:</strong> Create realistic mockups</li>
+      <li><strong>Development:</strong> Test dynamic content rendering</li>
+    </ul>
+    <h4>📚 History:</h4>
+    <p>
+      The text is derived from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The
+      Extremes of Good and Evil) by Cicero, written in 45 BC. It has been used as placeholder text
+      since the 1500s.
+    </p>
+  </div>
+</div>

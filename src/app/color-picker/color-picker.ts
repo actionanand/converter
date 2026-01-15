@@ -55,6 +55,20 @@ export class ColorPicker {
     return this.getTriadicColors(this.selectedColor());
   });
 
+  protected readonly greenPresets = [
+    { name: 'Light Moss', hex: '#A8DF8E' },
+    { name: 'Forest Green', hex: '#75B06F' },
+    { name: 'Dark Teal', hex: '#215E61' },
+    { name: 'Sage', hex: '#94A378' },
+    { name: 'Olive Drab', hex: '#5C6F2B' },
+    { name: 'Fresh Green', hex: '#93BD57' },
+    { name: 'Pale Olive', hex: '#C5D89D' },
+    { name: 'Deep Forest', hex: '#0D4715' },
+    { name: 'Mint Green', hex: '#A7E399' },
+    { name: 'Pale Mint', hex: '#CBF3BB' },
+    { name: 'Army Green', hex: '#84994F' },
+  ];
+
   protected onColorChange(event: Event): void {
     const color = (event.target as HTMLInputElement).value;
     this.selectedColor.set(color);
@@ -77,6 +91,11 @@ export class ColorPicker {
     const hex = this.rgbToHex(this.rgbR(), this.rgbG(), this.rgbB());
     this.selectedColor.set(hex);
     this.hexInput.set(hex);
+  }
+
+  protected applyPreset(hex: string): void {
+    this.selectedColor.set(hex);
+    this.updateFromHex(hex);
   }
 
   private updateFromHex(hex: string): void {

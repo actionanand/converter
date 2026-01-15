@@ -115,6 +115,26 @@
     </div>
   </div>
 
+  <!-- Green Color Presets -->
+  <div class="card">
+    <h2>🌿 Green Color Presets</h2>
+    <p class="subtitle">Beautiful green color palette with various shades</p>
+    <div class="presets-grid">
+      @for (preset of greenPresets; track preset.hex) {
+        <button
+          class="preset-box"
+          [style.background-color]="preset.hex"
+          (click)="applyPreset(preset.hex)"
+          [attr.aria-label]="'Apply ' + preset.name + ' color'"
+          [attr.title]="preset.name + ' - ' + preset.hex"
+        >
+          <span class="preset-name">{{ preset.name }}</span>
+          <span class="preset-value">{{ preset.hex }}</span>
+        </button>
+      }
+    </div>
+  </div>
+
   <!-- Shades -->
   <div class="card">
     <h2>🎭 Color Shades</h2>

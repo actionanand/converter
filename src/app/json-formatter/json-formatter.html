@@ -1,0 +1,168 @@
+<div class="converter-container">
+  <div class="header-section">
+    <h1>JSON Formatter & Comparison</h1>
+    <div class="animated-icon">📋</div>
+  </div>
+
+  <div class="card">
+    <div class="controls">
+      <div class="button-group">
+        <button (click)="clearAll()" class="btn-secondary">🗑️ Clear All</button>
+        <button (click)="loadSample()" class="btn-secondary">📄 Load Sample</button>
+        <button (click)="showComparison.set(!showComparison())" class="btn-primary">
+          {{ showComparison() ? '🔍 Hide Comparison' : '🔍 Compare JSONs' }}
+        </button>
+      </div>
+      <div class="indent-control">
+        <label for="indent-size">Indent Size:</label>
+        <select id="indent-size" [(ngModel)]="indentSize" class="indent-select">
+          <option [value]="2">2 spaces</option>
+          <option [value]="4">4 spaces</option>
+          <option [value]="8">Tab (8)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="json-grid" [class.single-panel]="!showComparison()">
+    <div class="card json-panel">
+      <div class="panel-header">
+        <h2>
+          {{ showComparison() ? 'JSON 1 (Original)' : 'JSON Input' }}
+          @if (isValid1() === true) {
+            <span class="status-badge valid">✓ Valid</span>
+          } @else if (isValid1() === false) {
+            <span class="status-badge invalid">✗ Invalid</span>
+          }
+        </h2>
+        <div class="button-group-inline">
+          <button (click)="formatJson(1)" class="btn-small">Format</button>
+          <button (click)="minifyJson(1)" class="btn-small">Minify</button>
+          <button (click)="copyFormatted(1)" class="btn-small">📋 Copy</button>
+        </div>
+      </div>
+
+      @if (errorMessage1()) {
+        <div class="error-message">{{ errorMessage1() }}</div>
+      }
+
+      <textarea
+        [(ngModel)]="jsonInput1"
+        placeholder='{"name": "value"}'
+        class="json-input"
+        rows="15"
+        aria-label="First JSON input"
+      ></textarea>
+
+      @if (formatted1()) {
+        <div class="formatted-preview">
+          <h4>Formatted Preview:</h4>
+          <pre class="formatted-json">{{ formatted1() }}</pre>
+        </div>
+      }
+    </div>
+
+    @if (showComparison()) {
+      <div class="card json-panel">
+        <div class="panel-header">
+          <h2>
+            JSON 2 (Modified)
+            @if (isValid2() === true) {
+              <span class="status-badge valid">✓ Valid</span>
+            } @else if (isValid2() === false) {
+              <span class="status-badge invalid">✗ Invalid</span>
+            }
+          </h2>
+          <div class="button-group-inline">
+            <button (click)="formatJson(2)" class="btn-small">Format</button>
+            <button (click)="minifyJson(2)" class="btn-small">Minify</button>
+            <button (click)="copyFormatted(2)" class="btn-small">📋 Copy</button>
+          </div>
+        </div>
+
+        @if (errorMessage2()) {
+          <div class="error-message">{{ errorMessage2() }}</div>
+        }
+
+        <textarea
+          [(ngModel)]="jsonInput2"
+          placeholder='{"name": "value"}'
+          class="json-input"
+          rows="15"
+          aria-label="Second JSON input"
+        ></textarea>
+
+        @if (formatted2()) {
+          <div class="formatted-preview">
+            <h4>Formatted Preview:</h4>
+            <pre class="formatted-json">{{ formatted2() }}</pre>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  @if (showComparison() && isValid1() && isValid2()) {
+    <div class="card">
+      <h2>🔍 Comparison Results</h2>
+      @if (differences().length === 0) {
+        <div class="no-differences">
+          <p>✅ No differences found. The JSON objects are identical!</p>
+        </div>
+      } @else {
+        <div class="differences-stats">
+          <div class="stat-badge added">{{ diffStats().added }} Added</div>
+          <div class="stat-badge removed">{{ diffStats().removed }} Removed</div>
+          <div class="stat-badge modified">{{ diffStats().modified }} Modified</div>
+        </div>
+
+        <div class="differences-list">
+          @for (diff of differences(); track $index) {
+            <div class="diff-item" [class]="diff.type">
+              <div class="diff-header">
+                <span class="diff-badge">{{ diff.type.toUpperCase() }}</span>
+                <code class="diff-path">{{ diff.path }}</code>
+              </div>
+              <div class="diff-values">
+                @if (diff.type === 'modified') {
+                  <div class="value-row">
+                    <span class="label">Old:</span>
+                    <code class="value old">{{ formatValue(diff.oldValue) }}</code>
+                  </div>
+                  <div class="value-row">
+                    <span class="label">New:</span>
+                    <code class="value new">{{ formatValue(diff.newValue) }}</code>
+                  </div>
+                } @else if (diff.type === 'added') {
+                  <div class="value-row">
+                    <span class="label">Value:</span>
+                    <code class="value new">{{ formatValue(diff.newValue) }}</code>
+                  </div>
+                } @else {
+                  <div class="value-row">
+                    <span class="label">Value:</span>
+                    <code class="value old">{{ formatValue(diff.oldValue) }}</code>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <div class="info-card">
+    <h3>ℹ️ About JSON Formatter</h3>
+    <p>
+      This tool helps you format, validate, and compare JSON data. You can beautify minified JSON,
+      validate JSON syntax, and compare two JSON objects to find differences.
+    </p>
+    <ul>
+      <li><strong>Format:</strong> Prettify JSON with proper indentation</li>
+      <li><strong>Minify:</strong> Remove all whitespace to reduce size</li>
+      <li><strong>Validate:</strong> Check if your JSON syntax is correct</li>
+      <li><strong>Compare:</strong> Find differences between two JSON objects</li>
+    </ul>
+  </div>
+</div>

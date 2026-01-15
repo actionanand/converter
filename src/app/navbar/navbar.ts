@@ -35,6 +35,26 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
               >Color Picker</a
             >
           </li>
+          <li>
+            <a routerLink="/text-compare" routerLinkActive="active" (click)="closeMenu()"
+              >Text Compare</a
+            >
+          </li>
+          <li>
+            <a routerLink="/json-formatter" routerLinkActive="active" (click)="closeMenu()"
+              >JSON Formatter</a
+            >
+          </li>
+          <li>
+            <a routerLink="/word-counter" routerLinkActive="active" (click)="closeMenu()"
+              >Word Counter</a
+            >
+          </li>
+          <li>
+            <a routerLink="/lorem-ipsum" routerLinkActive="active" (click)="closeMenu()"
+              >Lorem Ipsum</a
+            >
+          </li>
         </ul>
       </div>
     </nav>
@@ -75,19 +95,26 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
       background: none;
       border: none;
       cursor: pointer;
-      padding: 0.5rem;
+      padding: 0.75rem;
       z-index: 1001;
+      position: relative;
+      width: 44px;
+      height: 44px;
+      justify-content: center;
+      align-items: center;
 
       span {
         display: block;
-        width: 25px;
+        width: 26px;
         height: 3px;
         background-color: white;
         transition: all 0.3s ease;
+        border-radius: 2px;
       }
 
       &.active span:nth-child(1) {
-        transform: rotate(45deg) translate(8px, 8px);
+        transform: rotate(45deg) translate(9px, 9px);
+        background-color: #e74c3c;
       }
 
       &.active span:nth-child(2) {
@@ -95,7 +122,16 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
       }
 
       &.active span:nth-child(3) {
-        transform: rotate(-45deg) translate(7px, -7px);
+        transform: rotate(-45deg) translate(8px, -8px);
+        background-color: #e74c3c;
+      }
+
+      &:hover span {
+        background-color: #3498db;
+      }
+
+      &.active:hover span {
+        background-color: #c0392b;
       }
     }
 
