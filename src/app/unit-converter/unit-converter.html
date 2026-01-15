@@ -1,0 +1,147 @@
+<div class="converter-container">
+  <div class="header-section">
+    <h1>Unit Converter</h1>
+    <div class="animated-icon">🔄</div>
+  </div>
+
+  <div class="card">
+    <h2>Select Conversion Type</h2>
+    <div class="category-grid">
+      @for (cat of categories; track cat.value) {
+        <button
+          class="category-btn"
+          [class.active]="category() === cat.value"
+          (click)="category.set(cat.value); onCategoryChange()"
+        >
+          <span class="category-icon">{{ cat.icon }}</span>
+          <span class="category-label">{{ cat.label }}</span>
+        </button>
+      }
+    </div>
+  </div>
+
+  <div class="card converter-card">
+    <h2>{{ categoryName() }}</h2>
+
+    <div class="conversion-grid">
+      <div class="input-section">
+        <label for="input-value">From:</label>
+        <div class="input-group">
+          <input
+            type="number"
+            id="input-value"
+            [(ngModel)]="inputValue"
+            class="value-input"
+            step="any"
+            aria-label="Input value"
+          />
+          <select [(ngModel)]="fromUnit" class="unit-select" aria-label="From unit">
+            @for (unit of units(); track unit) {
+              <option [value]="unit">{{ unit }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <button class="swap-btn" (click)="swapUnits()" aria-label="Swap units">
+        <span class="swap-icon">⇄</span>
+      </button>
+
+      <div class="output-section">
+        <span class="label-text">To:</span>
+        <div class="input-group">
+          <div class="result-display">{{ result() }}</div>
+          <select [(ngModel)]="toUnit" class="unit-select" aria-label="To unit">
+            @for (unit of units(); track unit) {
+              <option [value]="unit">{{ unit }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="formula-display">
+      <strong>Result:</strong> {{ inputValue() }} {{ fromUnit() }} = {{ result() }} {{ toUnit() }}
+    </div>
+  </div>
+
+  <div class="info-card">
+    <h3>ℹ️ Conversion Information</h3>
+
+    @if (category() === 'typography') {
+      <div class="info-section">
+        <h4>Typography Units</h4>
+        <ul>
+          <li><strong>rem:</strong> Relative to root font size (usually 16px)</li>
+          <li><strong>px:</strong> Absolute pixels on screen</li>
+          <li><strong>em:</strong> Relative to parent font size</li>
+          <li><strong>pt:</strong> Points (1pt ≈ 1.333px)</li>
+        </ul>
+        <p class="note">
+          Note: This converter assumes a base font size of 16px (1rem = 16px), which is the browser
+          default.
+        </p>
+      </div>
+    }
+
+    @if (category() === 'temperature') {
+      <div class="info-section">
+        <h4>Temperature Scales</h4>
+        <ul>
+          <li><strong>Celsius (°C):</strong> Water freezes at 0°C, boils at 100°C</li>
+          <li><strong>Fahrenheit (°F):</strong> Water freezes at 32°F, boils at 212°F</li>
+          <li><strong>Kelvin (K):</strong> Absolute zero at 0K (-273.15°C)</li>
+        </ul>
+        <p class="note">
+          <strong>Common values:</strong> Room temp ≈ 20°C (68°F), Body temp ≈ 37°C (98.6°F)
+        </p>
+      </div>
+    }
+
+    @if (category() === 'weight') {
+      <div class="info-section">
+        <h4>Weight/Mass Units</h4>
+        <ul>
+          <li><strong>kg:</strong> Kilogram (SI unit)</li>
+          <li><strong>g:</strong> Gram (1kg = 1000g)</li>
+          <li><strong>lb:</strong> Pound (1lb ≈ 0.454kg)</li>
+          <li><strong>oz:</strong> Ounce (1lb = 16oz)</li>
+          <li><strong>ton:</strong> Metric ton (1000kg)</li>
+          <li><strong>stone:</strong> Stone (1 stone = 14lb)</li>
+        </ul>
+      </div>
+    }
+
+    @if (category() === 'pressure') {
+      <div class="info-section">
+        <h4>Pressure Units</h4>
+        <ul>
+          <li><strong>PSI:</strong> Pounds per square inch (common in US)</li>
+          <li><strong>bar:</strong> Bar (approximately atmospheric pressure)</li>
+          <li><strong>Pa:</strong> Pascal (SI unit)</li>
+          <li><strong>kPa:</strong> Kilopascal (1000 Pa)</li>
+          <li><strong>atm:</strong> Atmosphere (1 atm ≈ 101.325 kPa)</li>
+        </ul>
+        <p class="note">
+          <strong>Common values:</strong> Tire pressure ≈ 32 PSI, Sea level pressure ≈ 1 atm
+        </p>
+      </div>
+    }
+
+    @if (category() === 'length') {
+      <div class="info-section">
+        <h4>Length/Distance Units</h4>
+        <ul>
+          <li><strong>m:</strong> Meter (SI unit)</li>
+          <li><strong>km:</strong> Kilometer (1000m)</li>
+          <li><strong>cm:</strong> Centimeter (0.01m)</li>
+          <li><strong>mm:</strong> Millimeter (0.001m)</li>
+          <li><strong>mi:</strong> Mile (≈1.609 km)</li>
+          <li><strong>yd:</strong> Yard (≈0.914 m)</li>
+          <li><strong>ft:</strong> Foot (≈0.305 m)</li>
+          <li><strong>in:</strong> Inch (2.54 cm)</li>
+        </ul>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,226 @@
+<div class="converter-container">
+  <div class="header-section">
+    <h1>String to SHA1 Converter</h1>
+    <div class="animated-icon">🔐</div>
+  </div>
+
+  <div class="card">
+    <div class="input-section">
+      <label for="input-text" class="label">Enter Text:</label>
+      <textarea
+        id="input-text"
+        [(ngModel)]="inputText"
+        (input)="convertToSha1()"
+        placeholder="Type or paste your text here to generate SHA1 hash..."
+        class="input-textarea"
+        rows="6"
+      ></textarea>
+      <div class="char-count">Characters: {{ inputText().length }}</div>
+    </div>
+
+    @if (sha1Result()) {
+      <div class="result-section">
+        <div class="result-label">SHA1 Hash:</div>
+        <div class="result-container">
+          <input
+            type="text"
+            [value]="sha1Result()"
+            readonly
+            class="result-input"
+            aria-label="SHA1 hash result"
+          />
+          <div class="hash-info">
+            <span class="info-badge">160-bit</span>
+            <span class="info-badge">40 characters</span>
+            <span class="info-badge">Hexadecimal</span>
+          </div>
+        </div>
+        <div class="button-group">
+          <button (click)="copyToClipboard()" class="btn btn-primary">📋 Copy Hash</button>
+          <button (click)="reset()" class="btn btn-secondary">🔄 Reset</button>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Terminal Command -->
+  <div class="info-card">
+    <h2>💻 Terminal Commands</h2>
+
+    <div class="command-section">
+      <h3>Linux / macOS:</h3>
+      <pre><code># From string
+echo -n "your text here" | shasum -a 1
+
+# Or using openssl
+echo -n "your text here" | openssl sha1
+
+# From file
+shasum -a 1 filename.txt
+
+# Alternative
+sha1sum filename.txt</code></pre>
+    </div>
+
+    <div class="command-section">
+      <h3>Windows PowerShell:</h3>
+      <pre><code># From string
+$text = "your text here"
+$sha1 = [System.Security.Cryptography.SHA1]::Create()
+$hash = $sha1.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($text))
+[System.BitConverter]::ToString($hash) -replace '-',''
+
+# From file
+Get-FileHash -Algorithm SHA1 filename.txt</code></pre>
+    </div>
+
+    <div class="command-section">
+      <h3>Node.js:</h3>
+      <pre><code>const crypto = require('crypto');
+const hash = crypto.createHash('sha1').update('your text here').digest('hex');
+console.log(hash);</code></pre>
+    </div>
+
+    <div class="command-section">
+      <h3>Python:</h3>
+      <pre><code>import hashlib
+text = "your text here"
+hash_object = hashlib.sha1(text.encode())
+hex_dig = hash_object.hexdigest()
+print(hex_dig)</code></pre>
+    </div>
+  </div>
+
+  <!-- SHA1 Information -->
+  <div class="info-card">
+    <h2>📚 About SHA1 (Secure Hash Algorithm 1)</h2>
+
+    <div class="info-content">
+      <p>
+        SHA-1 is a cryptographic hash function designed by the United States National Security
+        Agency (NSA) and published in 1995. It produces a 160-bit (20-byte) hash value, typically
+        rendered as a 40-digit hexadecimal number.
+      </p>
+
+      <div class="features-grid">
+        <div class="feature-box">
+          <div class="feature-icon">⚡</div>
+          <h4>Fast</h4>
+          <p>Quick computation for any input size</p>
+        </div>
+        <div class="feature-box">
+          <div class="feature-icon">🎯</div>
+          <h4>Deterministic</h4>
+          <p>Same input always produces same hash</p>
+        </div>
+        <div class="feature-box">
+          <div class="feature-icon">🔀</div>
+          <h4>One-way</h4>
+          <p>Cannot reverse hash to get original</p>
+        </div>
+        <div class="feature-box">
+          <div class="feature-icon">📏</div>
+          <h4>Fixed Size</h4>
+          <p>Always 40 hex characters (160 bits)</p>
+        </div>
+      </div>
+
+      <h3>How SHA1 Works:</h3>
+      <ol class="process-steps">
+        <li><strong>Padding:</strong> Message is padded to multiple of 512 bits</li>
+        <li><strong>Processing:</strong> Message divided into 512-bit blocks</li>
+        <li><strong>Compression:</strong> Each block processed through 80 rounds</li>
+        <li><strong>Output:</strong> Final 160-bit hash value produced</li>
+      </ol>
+
+      <div class="warning-card">
+        <div class="warning-header">
+          <span class="warning-icon">⚠️</span>
+          <strong>Security Warning</strong>
+        </div>
+        <p>
+          SHA-1 is <strong>no longer considered secure</strong> for cryptographic purposes.
+          Theoretical attacks were demonstrated in 2005, and practical collision attacks became
+          feasible in 2017.
+        </p>
+        <p>
+          <strong>Do NOT use SHA-1 for:</strong>
+        </p>
+        <ul>
+          <li>Password hashing</li>
+          <li>Digital signatures</li>
+          <li>SSL/TLS certificates</li>
+          <li>Security-critical applications</li>
+        </ul>
+      </div>
+
+      <h3>✅ Acceptable Uses:</h3>
+      <ul class="use-cases">
+        <li>Git commit identifiers (non-security critical)</li>
+        <li>Data integrity checks (where collision resistance not critical)</li>
+        <li>Legacy system compatibility</li>
+        <li>Non-cryptographic checksums</li>
+      </ul>
+
+      <h3>🔒 Better Alternatives:</h3>
+      <div class="alternatives-grid">
+        <div class="alternative-box">
+          <strong>SHA-256</strong>
+          <p>Part of SHA-2 family, widely used and secure</p>
+        </div>
+        <div class="alternative-box">
+          <strong>SHA-3</strong>
+          <p>Latest standard, different internal structure</p>
+        </div>
+        <div class="alternative-box">
+          <strong>BLAKE2</strong>
+          <p>Faster than SHA-2, highly secure</p>
+        </div>
+        <div class="alternative-box">
+          <strong>bcrypt/Argon2</strong>
+          <p>For password hashing specifically</p>
+        </div>
+      </div>
+
+      <div class="external-tools">
+        <h4>🔗 Online SHA1 Tools:</h4>
+        <a
+          href="https://emn178.github.io/online-tools/sha1.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="external-link"
+        >
+          Alternative SHA1 Generator Tool →
+        </a>
+      </div>
+
+      <h3>📊 Technical Specifications:</h3>
+      <table class="specs-table">
+        <tr>
+          <td><strong>Hash Size:</strong></td>
+          <td>160 bits (20 bytes)</td>
+        </tr>
+        <tr>
+          <td><strong>Output Format:</strong></td>
+          <td>40 hexadecimal characters</td>
+        </tr>
+        <tr>
+          <td><strong>Block Size:</strong></td>
+          <td>512 bits</td>
+        </tr>
+        <tr>
+          <td><strong>Rounds:</strong></td>
+          <td>80</td>
+        </tr>
+        <tr>
+          <td><strong>Published:</strong></td>
+          <td>1995</td>
+        </tr>
+        <tr>
+          <td><strong>Security Status:</strong></td>
+          <td class="deprecated">Deprecated (2017)</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>

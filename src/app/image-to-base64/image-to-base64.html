@@ -1,0 +1,195 @@
+<div class="converter-container">
+  <div class="header-section">
+    <h1>Image to Base64 Converter</h1>
+    <div class="animated-icon">📸</div>
+  </div>
+
+  <div class="card">
+    <div class="upload-section">
+      <div class="toggle-container">
+        <label class="toggle-switch">
+          <input type="checkbox" [(ngModel)]="optimize" [disabled]="isProcessing()" />
+          <span class="slider"></span>
+        </label>
+        <span class="toggle-text">Optimize image before conversion</span>
+        @if (optimize()) {
+          <p class="help-text">
+            ✨ Images will be resized (max 1920x1080) and compressed for better performance
+          </p>
+        }
+      </div>
+
+      <div class="file-input-container">
+        <label for="file-upload" class="file-label">
+          <span class="upload-icon">📁</span>
+          Choose Image (Max 5MB)
+          <input
+            id="file-upload"
+            type="file"
+            accept="image/*"
+            (change)="onFileSelected($event)"
+            [disabled]="isProcessing()"
+            class="file-input"
+          />
+        </label>
+
+        <div class="supported-formats">
+          <strong>Supported formats:</strong> JPEG, PNG, GIF, WebP, BMP, SVG
+        </div>
+
+        @if (fileName()) {
+          <div class="file-details-grid">
+            @if (previewUrl()) {
+              <div class="preview-container">
+                <img [src]="previewUrl()" [alt]="fileName()" class="preview-image" />
+              </div>
+            }
+            <div class="file-info">
+              <div class="info-row">
+                <span class="label">📄 File:</span>
+                <span class="value">{{ fileName() }}</span>
+              </div>
+              <div class="info-row">
+                <span class="label">📐 Dimensions:</span>
+                <span class="value">{{ aspectRatio() }}</span>
+              </div>
+              <div class="info-row">
+                <span class="label">💾 Original Size:</span>
+                <span class="value">{{ getOriginalSize() }}</span>
+              </div>
+              @if (hasResult()) {
+                <div class="info-row">
+                  <span class="label">📊 Base64 Size:</span>
+                  <span class="value">{{ getBase64SizeFormatted() }}</span>
+                </div>
+                @if (optimizedSize() > 0) {
+                  <div class="info-row">
+                    <span class="label">⚡ Optimized Size:</span>
+                    <span class="value success">{{ getOptimizedSizeFormatted() }}</span>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+
+          @if (hasResult() && base64Increase() > 0) {
+            <div class="warning-box">
+              <strong>⚠️ Note:</strong> Base64 encoding increases file size by approximately
+              {{ base64Increase() }}%. This is normal as base64 uses text characters to represent
+              binary data.
+            </div>
+          }
+        }
+      </div>
+
+      @if (isProcessing()) {
+        <div class="processing">
+          <div class="spinner"></div>
+          <span>Processing...</span>
+        </div>
+      }
+    </div>
+
+    @if (hasResult()) {
+      <div class="result-section">
+        <h2>Base64 Result</h2>
+        <div class="result-container">
+          <textarea [value]="base64Result()" readonly class="result-textarea" rows="10"></textarea>
+        </div>
+        <div class="button-group">
+          <button (click)="copyToClipboard()" class="btn btn-primary">📋 Copy to Clipboard</button>
+          <button (click)="reset()" class="btn btn-secondary">🔄 Reset</button>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Usage Instructions -->
+  <div class="info-card">
+    <h2>💡 How to Use Base64 Images</h2>
+
+    <div class="usage-section">
+      <h3>In HTML img tag:</h3>
+      <pre><code>&lt;img src="data:image/jpeg;base64,/9j/4AAQSkZJRg..." alt="description" /&gt;</code></pre>
+    </div>
+
+    <div class="usage-section">
+      <h3>In CSS background:</h3>
+      <pre><code>.element {{ '{' }}
+  background-image: url(data:image/jpeg;base64,/9j/4AAQSkZJRg...);
+{{ '}' }}</code></pre>
+    </div>
+
+    <div class="usage-section">
+      <h3>In email HTML:</h3>
+      <pre><code>&lt;img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..." /&gt;</code></pre>
+      <p class="note">Perfect for email templates as external images may be blocked</p>
+    </div>
+
+    <div class="usage-section">
+      <h3>Bash Terminal Command:</h3>
+      <pre><code># Convert image to base64
+base64 -i yourimage.jpg -o output.txt
+
+# Or for inline output
+base64 -i yourimage.jpg
+
+# On Linux
+base64 yourimage.jpg &gt; output.txt</code></pre>
+    </div>
+  </div>
+
+  <!-- Base64 Information -->
+  <div class="info-card">
+    <h2>📚 What is Base64?</h2>
+
+    <div class="info-content">
+      <p>
+        Base64 is an encoding scheme that converts binary data into ASCII text format using 64
+        different characters (A-Z, a-z, 0-9, +, /). This makes it safe to transmit binary data over
+        text-based protocols.
+      </p>
+
+      <div class="format-box">
+        <strong>Base64 Data Format:</strong>
+        <pre><code>data:[&lt;MIME type&gt;][;base64],&lt;encoded data&gt;
+
+Example:
+data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA...</code></pre>
+      </div>
+
+      <h3>How Base64 Encoding Works:</h3>
+      <ol>
+        <li>Binary data is divided into groups of 3 bytes (24 bits)</li>
+        <li>Each group is split into 4 chunks of 6 bits each</li>
+        <li>Each 6-bit chunk maps to one of 64 ASCII characters</li>
+        <li>Result: 3 bytes become 4 characters (33% size increase)</li>
+      </ol>
+
+      <h3>✅ Advantages:</h3>
+      <ul>
+        <li>Embed images directly in HTML/CSS (reduces HTTP requests)</li>
+        <li>Works in emails and offline documents</li>
+        <li>No external file dependencies</li>
+        <li>Safe for text-based transmission</li>
+      </ul>
+
+      <h3>❌ Disadvantages:</h3>
+      <ul>
+        <li>Increases file size by ~33%</li>
+        <li>Not cached separately by browsers</li>
+        <li>Makes HTML/CSS files larger</li>
+        <li>Not ideal for large images</li>
+      </ul>
+
+      <h3>🎯 Best Use Cases:</h3>
+      <ul>
+        <li>Small icons and logos</li>
+        <li>Email templates</li>
+        <li>Inline SVGs and small graphics</li>
+        <li>Data URIs for development</li>
+        <li>Embedded images in JSON/XML</li>
+      </ul>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,157 @@
+<div class="converter-container">
+  <div class="header-section">
+    <h1>Text Comparison Tool</h1>
+    <div class="animated-icon">📝</div>
+  </div>
+
+  <div class="card">
+    <div class="controls">
+      <div class="button-group">
+        <button (click)="swapTexts()" class="btn-primary">↔️ Swap Texts</button>
+        <button (click)="clearAll()" class="btn-secondary">🗑️ Clear All</button>
+        <button (click)="loadSample()" class="btn-secondary">📄 Load Sample</button>
+      </div>
+      <div class="view-toggle">
+        <button
+          [class.active]="viewMode() === 'side-by-side'"
+          (click)="viewMode.set('side-by-side')"
+          class="toggle-btn"
+        >
+          Side by Side
+        </button>
+        <button
+          [class.active]="viewMode() === 'inline'"
+          (click)="viewMode.set('inline')"
+          class="toggle-btn"
+        >
+          Inline
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="comparison-grid" [class.inline-mode]="viewMode() === 'inline'">
+    @if (viewMode() === 'side-by-side') {
+      <div class="card text-panel">
+        <h2>Original Text</h2>
+        <div class="stats-mini">
+          <span>{{ stats().text1Lines }} lines</span>
+          <span>{{ stats().text1Words }} words</span>
+          <span>{{ stats().text1Chars }} chars</span>
+        </div>
+        <textarea
+          [(ngModel)]="text1"
+          placeholder="Enter first text here..."
+          class="text-input"
+          rows="15"
+          aria-label="First text input"
+        ></textarea>
+      </div>
+
+      <div class="card text-panel">
+        <h2>Modified Text</h2>
+        <div class="stats-mini">
+          <span>{{ stats().text2Lines }} lines</span>
+          <span>{{ stats().text2Words }} words</span>
+          <span>{{ stats().text2Chars }} chars</span>
+        </div>
+        <textarea
+          [(ngModel)]="text2"
+          placeholder="Enter second text here..."
+          class="text-input"
+          rows="15"
+          aria-label="Second text input"
+        ></textarea>
+      </div>
+    } @else {
+      <div class="card text-panel full-width">
+        <h2>Original Text</h2>
+        <textarea
+          [(ngModel)]="text1"
+          placeholder="Enter first text here..."
+          class="text-input"
+          rows="8"
+          aria-label="First text input"
+        ></textarea>
+
+        <h2>Modified Text</h2>
+        <textarea
+          [(ngModel)]="text2"
+          placeholder="Enter second text here..."
+          class="text-input"
+          rows="8"
+          aria-label="Second text input"
+        ></textarea>
+      </div>
+    }
+  </div>
+
+  <div class="card">
+    <h2>🔍 Comparison Results</h2>
+    <div class="diff-stats">
+      <div class="stat-item equal">
+        <strong>{{ diffStats().equal }}</strong> Equal lines
+      </div>
+      <div class="stat-item added">
+        <strong>{{ diffStats().added }}</strong> Added lines
+      </div>
+      <div class="stat-item removed">
+        <strong>{{ diffStats().removed }}</strong> Removed lines
+      </div>
+    </div>
+
+    @if (text1() || text2()) {
+      <div class="diff-viewer">
+        @for (line of diff(); track $index) {
+          <div class="diff-line" [class]="line.type">
+            @if (viewMode() === 'side-by-side') {
+              <div class="line-numbers">
+                <span class="line-num">{{ line.lineNumber1 || '' }}</span>
+                <span class="line-num">{{ line.lineNumber2 || '' }}</span>
+              </div>
+            } @else {
+              <div class="line-numbers">
+                <span class="line-num">
+                  {{ line.lineNumber1 || line.lineNumber2 || '' }}
+                </span>
+              </div>
+            }
+            <div class="line-indicator">
+              @if (line.type === 'added') {
+                <span class="indicator">+</span>
+              } @else if (line.type === 'removed') {
+                <span class="indicator">-</span>
+              } @else {
+                <span class="indicator">&nbsp;</span>
+              }
+            </div>
+            <div class="line-content">{{ line.text }}</div>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="empty-state">
+        <p>Enter text in both fields to see the comparison</p>
+      </div>
+    }
+  </div>
+
+  <div class="info-card">
+    <h3>ℹ️ About Text Comparison</h3>
+    <p>
+      This tool compares two texts line-by-line and highlights the differences. It uses the Longest
+      Common Subsequence (LCS) algorithm to find matching lines.
+    </p>
+    <ul>
+      <li>
+        <strong class="added-text">Green lines</strong> are present only in the modified text
+        (added)
+      </li>
+      <li>
+        <strong class="removed-text">Red lines</strong> are present only in the original text
+        (removed)
+      </li>
+      <li>White lines are present in both texts (unchanged)</li>
+    </ul>
+  </div>
+</div>

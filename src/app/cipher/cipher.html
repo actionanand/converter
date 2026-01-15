@@ -1,0 +1,149 @@
+<div class="converter-container">
+  <div class="header-section">
+    <h1>Secret Cipher Encoder/Decoder</h1>
+    <div class="animated-icon">🔐</div>
+  </div>
+
+  <div class="card">
+    <div class="controls">
+      <div class="mode-toggle">
+        <button [class.active]="mode() === 'encode'" (click)="mode.set('encode')" class="mode-btn">
+          🔒 Encode
+        </button>
+        <button [class.active]="mode() === 'decode'" (click)="mode.set('decode')" class="mode-btn">
+          🔓 Decode
+        </button>
+      </div>
+      <div class="button-group">
+        <button (click)="swapMode()" class="btn-secondary">⇄ Swap</button>
+        <button (click)="clearAll()" class="btn-secondary">🗑️ Clear</button>
+        <button (click)="loadSample()" class="btn-secondary">📄 Sample</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🔑 Secret Key</h2>
+    <p class="subtitle">
+      Enter a secret key/password. The same key must be used for encoding and decoding.
+    </p>
+    <input
+      type="text"
+      [(ngModel)]="secretKey"
+      placeholder="Enter your secret key..."
+      class="key-input"
+      aria-label="Secret key input"
+    />
+  </div>
+
+  <div class="conversion-grid">
+    <div class="card input-panel">
+      <h2>
+        @if (mode() === 'encode') {
+          📝 Plain Text (Input)
+        } @else {
+          🔐 Cipher Text (Input)
+        }
+      </h2>
+      <div class="stats-mini">
+        <span>{{ stats().inputLength }} characters</span>
+        <span>{{ stats().inputWords }} words</span>
+      </div>
+      <textarea
+        [(ngModel)]="inputText"
+        [placeholder]="
+          mode() === 'encode' ? 'Enter your message to encode...' : 'Enter cipher text to decode...'
+        "
+        class="text-input"
+        rows="8"
+        aria-label="Input text"
+      ></textarea>
+    </div>
+
+    <div class="card output-panel">
+      <div class="panel-header">
+        <h2>
+          @if (mode() === 'encode') {
+            🔐 Cipher Text (Output)
+          } @else {
+            📝 Plain Text (Output)
+          }
+        </h2>
+        <button (click)="copyOutput()" [disabled]="!outputText()" class="btn-copy">📋 Copy</button>
+      </div>
+      <div class="stats-mini">
+        <span>{{ stats().outputLength }} characters</span>
+        <span>{{ stats().outputWords }} words</span>
+      </div>
+      <div class="output-display">
+        {{ outputText() || 'Output will appear here...' }}
+      </div>
+    </div>
+  </div>
+
+  @if (secretKey()) {
+    <div class="card">
+      <h2>🔤 Alphabet Mapping</h2>
+      <p class="subtitle">
+        How each letter is transformed with your secret key "{{ secretKey() }}"
+      </p>
+      <div class="alphabet-grid">
+        @for (mapping of alphabetMapping(); track $index) {
+          <div class="mapping-item">
+            <div class="original-letter">{{ mapping.original }}</div>
+            <div class="arrow">→</div>
+            <div class="cipher-letter">{{ mapping.cipher }}</div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <div class="info-card">
+    <h3>ℹ️ How It Works</h3>
+    <p>
+      This cipher tool uses a substitution cipher where each letter of the alphabet is replaced with
+      another letter based on your secret key.
+    </p>
+
+    <h4>📝 Encoding</h4>
+    <ul>
+      <li>Enter your plain text message</li>
+      <li>Provide a secret key (any text or password)</li>
+      <li>The tool shuffles the alphabet based on your key</li>
+      <li>Each letter in your message is replaced with the corresponding cipher letter</li>
+    </ul>
+
+    <h4>🔓 Decoding</h4>
+    <ul>
+      <li>Switch to Decode mode</li>
+      <li>Enter the cipher text</li>
+      <li>Use the SAME secret key that was used for encoding</li>
+      <li>The tool reverses the substitution to reveal the original message</li>
+    </ul>
+
+    <h4>🔒 Security Notes</h4>
+    <ul>
+      <li>
+        <strong>Same key required:</strong> You must use the exact same secret key to decode a
+        message
+      </li>
+      <li>
+        <strong>Case preserved:</strong> Uppercase and lowercase letters are maintained in the
+        output
+      </li>
+      <li><strong>Non-letters unchanged:</strong> Numbers, spaces, and punctuation remain as-is</li>
+      <li>
+        <strong>For fun and learning:</strong> This is a simple substitution cipher, not suitable
+        for serious encryption
+      </li>
+    </ul>
+
+    <h4>💡 Example</h4>
+    <div class="example-box">
+      <p><strong>Secret Key:</strong> "mysecret"</p>
+      <p><strong>Plain Text:</strong> "Hello World"</p>
+      <p><strong>Cipher Text:</strong> "Svggd Ldkgw" (example, actual output depends on key)</p>
+    </div>
+  </div>
+</div>
