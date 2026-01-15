@@ -38,6 +38,10 @@ export const routes: Routes = [
     loadComponent: () => import('./lorem-ipsum/lorem-ipsum').then((m) => m.LoremIpsum),
   },
   {
+    path: 'unit-converter',
+    loadComponent: () => import('./unit-converter/unit-converter').then((m) => m.UnitConverter),
+  },
+  {
     path: '**',
     redirectTo: '',
   },
