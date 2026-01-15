@@ -42,6 +42,10 @@ export const routes: Routes = [
     loadComponent: () => import('./unit-converter/unit-converter').then((m) => m.UnitConverter),
   },
   {
+    path: 'cipher',
+    loadComponent: () => import('./cipher/cipher').then((m) => m.Cipher),
+  },
+  {
     path: '**',
     redirectTo: '',
   },

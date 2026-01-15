@@ -49,6 +49,11 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
               <li>
                 <a routerLink="/jwt" routerLinkActive="active" (click)="closeMenu()">JWT Decoder</a>
               </li>
+              <li>
+                <a routerLink="/cipher" routerLinkActive="active" (click)="closeMenu()"
+                  >Secret Cipher</a
+                >
+              </li>
             </ul>
           </li>
           <li
