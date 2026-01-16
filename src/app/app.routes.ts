@@ -54,6 +54,11 @@ export const routes: Routes = [
     loadComponent: () => import('./base-converter/base-converter').then((m) => m.BaseConverter),
   },
   {
+    path: 'favicon-generator',
+    loadComponent: () =>
+      import('./favicon-generator/favicon-generator').then((m) => m.FaviconGenerator),
+  },
+  {
     path: '**',
     redirectTo: '',
   },

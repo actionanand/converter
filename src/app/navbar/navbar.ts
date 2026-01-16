@@ -116,6 +116,11 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
                   >Unit Converter</a
                 >
               </li>
+              <li>
+                <a routerLink="/favicon-generator" routerLinkActive="active" (click)="closeMenu()"
+                  >Favicon Generator</a
+                >
+              </li>
             </ul>
           </li>
         </ul>

@@ -143,5 +143,34 @@
         </ul>
       </div>
     }
+
+    @if (category() === 'area') {
+      <div class="info-section">
+        <h4>Land/Area Measurement Units</h4>
+        <ul>
+          <li><strong>sq ft:</strong> Square feet (common in US real estate)</li>
+          <li><strong>sq m:</strong> Square meter (SI unit)</li>
+          <li><strong>acre:</strong> Acre (43,560 sq ft or ~4,047 sq m)</li>
+          <li><strong>hectare:</strong> Hectare (10,000 sq m or ~2.471 acres)</li>
+          <li><strong>cent:</strong> Cent (1/100 acre, common in India, ~40.47 sq m)</li>
+          <li><strong>sq yd:</strong> Square yard (9 sq ft or ~0.836 sq m)</li>
+          <li><strong>sq mi:</strong> Square mile (640 acres)</li>
+          <li><strong>sq km:</strong> Square kilometer (100 hectares or ~247 acres)</li>
+        </ul>
+        <div class="conversion-examples">
+          <h5>Common Conversions:</h5>
+          <ul>
+            <li>1 acre = 43,560 sq ft = 4,046.86 sq m = 100 cents</li>
+            <li>1 hectare = 10,000 sq m = 2.471 acres</li>
+            <li>1 sq km = 100 hectares = 247.1 acres</li>
+            <li>1 cent = 435.6 sq ft (Indian land measurement)</li>
+          </ul>
+        </div>
+        <p class="note">
+          <strong>Real estate examples:</strong> Small apartment ≈ 800 sq ft, Average house lot ≈
+          0.25 acres, Football field ≈ 1.32 acres
+        </p>
+      </div>
+    }
   </div>
 </div>

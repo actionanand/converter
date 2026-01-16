@@ -284,6 +284,38 @@
       color: #856404;
     }
   }
+
+  .conversion-examples {
+    background: #e8f5e9;
+    padding: 1rem;
+    border-radius: 6px;
+    border-left: 4px solid #4caf50;
+    margin: 1rem 0;
+
+    h5 {
+      color: #2e7d32;
+      margin-top: 0;
+      margin-bottom: 0.75rem;
+      font-size: 1rem;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 1.5rem;
+      list-style: disc;
+
+      li {
+        border: none;
+        padding: 0.25rem 0;
+        color: #2e7d32;
+        font-size: 0.95rem;
+
+        strong {
+          color: #1b5e20;
+        }
+      }
+    }
+  }
 }
 
 @media (max-width: 768px) {
