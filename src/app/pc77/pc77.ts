@@ -82,6 +82,28 @@ export class Pc77Converter {
     }
   });
 
+  public readonly alternativeFormats = computed(() => {
+    const decimal =
+      this.mode() === 'toPC77'
+        ? parseInt(String(this.decimalInput() || '').trim(), 10)
+        : parseInt(this.decimalResult(), 10);
+
+    if (isNaN(decimal) || decimal < 0 || decimal > 16383) return null;
+
+    const binary14 = decimal.toString(2).padStart(14, '0');
+
+    // ITU-T 3-8-3 format (14 bits)
+    const zone = parseInt(binary14.substring(0, 3), 2);
+    const area = parseInt(binary14.substring(3, 11), 2);
+    const id = parseInt(binary14.substring(11, 14), 2);
+
+    return {
+      decimal: decimal,
+      itu383: `${zone}-${area}-${id}`,
+      pc77: `${parseInt(binary14.substring(0, 7), 2)}-${parseInt(binary14.substring(7, 14), 2)}`,
+    };
+  });
+
   private decimalToPC77(decimal: number): string {
     // Convert to 14-bit binary
     const binary = decimal.toString(2);
