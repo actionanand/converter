@@ -1,0 +1,209 @@
+<div class="favicon-container">
+  <div class="header">
+    <h1>Favicon Generator</h1>
+    <p>Create professional favicons for your website with text or images</p>
+  </div>
+
+  <div class="mode-selector">
+    <button [class.active]="mode() === 'text'" (click)="mode.set('text'); generatePreview()">
+      <span class="icon">T</span> Text Favicon
+    </button>
+    <button [class.active]="mode() === 'image'" (click)="mode.set('image'); generatePreview()">
+      <span class="icon">🖼️</span> Image Favicon
+    </button>
+  </div>
+
+  @if (mode() === 'text') {
+    <div class="text-mode">
+      <div class="input-section">
+        <div class="form-group">
+          <label for="text">Text (max 2 characters)</label>
+          <input
+            id="text"
+            type="text"
+            [(ngModel)]="text"
+            (ngModelChange)="generatePreview()"
+            maxlength="2"
+            placeholder="AI"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="template-selector">Template</label>
+          <input type="hidden" id="template-selector" [value]="selectedTemplate()" />
+          <div class="template-grid" role="group" aria-labelledby="template-label">
+            @for (template of templates; track template.id) {
+              <button
+                class="template-btn"
+                [class.active]="selectedTemplate() === template.id"
+                (click)="selectedTemplate.set(template.id); generatePreview()"
+                [style.background]="
+                  template.pattern === 'gradient' && template.gradientEnd
+                    ? 'linear-gradient(135deg, ' +
+                      template.bgColor +
+                      ', ' +
+                      template.gradientEnd +
+                      ')'
+                    : template.bgColor
+                "
+                [style.color]="template.textColor"
+              >
+                <span class="template-name">{{ template.name }}</span>
+                @if (
+                  template.name.toLowerCase().includes('green') ||
+                  template.name.toLowerCase().includes('emerald') ||
+                  template.name.toLowerCase().includes('mint') ||
+                  template.name.toLowerCase().includes('forest') ||
+                  template.name.toLowerCase().includes('lime') ||
+                  template.name.toLowerCase().includes('teal') ||
+                  template.name.toLowerCase().includes('sage')
+                ) {
+                  <span class="green-badge">🌿</span>
+                }
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>
+            <input
+              type="checkbox"
+              [(ngModel)]="useTransparent"
+              (ngModelChange)="generatePreview()"
+            />
+            Use transparent background
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label for="size">Favicon Size</label>
+          <select id="size" [(ngModel)]="size">
+            <option [value]="16">16x16 (Standard)</option>
+            <option [value]="32">32x32 (Recommended)</option>
+            <option [value]="48">48x48 (High-Res)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (mode() === 'image') {
+    <div class="image-mode">
+      <div class="upload-section">
+        @if (!uploadedImage()) {
+          <div
+            class="upload-area"
+            (click)="fileInput.click()"
+            (keyup.enter)="fileInput.click()"
+            (keyup.space)="fileInput.click()"
+            tabindex="0"
+            role="button"
+            aria-label="Upload image file"
+          >
+            <div class="upload-icon">📁</div>
+            <p>Click to upload an image</p>
+            <p class="upload-hint">PNG, JPG, SVG supported</p>
+            <input
+              #fileInput
+              type="file"
+              accept="image/*"
+              (change)="onFileSelected($event)"
+              style="display: none"
+            />
+          </div>
+        } @else {
+          <div class="uploaded-preview">
+            <img [src]="uploadedImage()" alt="Uploaded image" />
+            <button class="remove-btn" (click)="removeImage()">✕ Remove</button>
+          </div>
+        }
+      </div>
+
+      @if (uploadedImage()) {
+        <div class="form-group">
+          <label for="imageSize">Favicon Size</label>
+          <select id="imageSize" [(ngModel)]="size">
+            <option [value]="16">16x16 (Standard)</option>
+            <option [value]="32">32x32 (Recommended)</option>
+            <option [value]="48">48x48 (High-Res)</option>
+          </select>
+        </div>
+      }
+    </div>
+  }
+
+  <div class="preview-section">
+    <h3>Preview</h3>
+    <div class="preview-container">
+      <canvas #previewCanvas class="preview-canvas"></canvas>
+      <p class="preview-note">Actual size will be {{ size() }}x{{ size() }} pixels</p>
+    </div>
+  </div>
+
+  <div class="action-buttons">
+    <button
+      class="download-btn primary"
+      (click)="downloadFavicon()"
+      [disabled]="(mode() === 'text' && !text()) || (mode() === 'image' && !uploadedImage())"
+    >
+      ⬇️ Download Favicon ({{ size() }}x{{ size() }})
+    </button>
+    <button
+      class="download-btn secondary"
+      (click)="downloadAllSizes()"
+      [disabled]="(mode() === 'text' && !text()) || (mode() === 'image' && !uploadedImage())"
+    >
+      ⬇️ Download All Sizes (16, 32, 48)
+    </button>
+  </div>
+
+  <div class="info-section">
+    <h3>About Favicons</h3>
+    <div class="info-content">
+      <div class="info-card">
+        <h4>📏 Standard Sizes</h4>
+        <ul>
+          <li><strong>16x16:</strong> Classic browser tab icon</li>
+          <li><strong>32x32:</strong> Most common, recommended for modern browsers</li>
+          <li><strong>48x48:</strong> High-resolution displays and bookmarks</li>
+        </ul>
+      </div>
+
+      <div class="info-card">
+        <h4>🎨 Design Tips</h4>
+        <ul>
+          <li>Keep designs simple and recognizable at small sizes</li>
+          <li>Use high contrast between text and background</li>
+          <li>Limit to 1-2 characters for text favicons</li>
+          <li>Test on both light and dark browser themes</li>
+        </ul>
+      </div>
+
+      <div class="info-card">
+        <h4>💻 How to Use</h4>
+        <ul>
+          <li>Place <code>favicon.ico</code> in your website root directory</li>
+          <li>Or add to HTML: <code>&lt;link rel="icon" href="/favicon.png"&gt;</code></li>
+          <li>Modern browsers support PNG, ICO, and SVG formats</li>
+          <li>Use multiple sizes for better quality across devices</li>
+        </ul>
+      </div>
+
+      <div class="info-card green-themed">
+        <h4>🌿 Green Templates</h4>
+        <p>
+          We offer 10 green-themed templates perfect for eco-friendly, fresh, and nature-inspired
+          brands:
+        </p>
+        <ul>
+          <li><strong>Green Gradient</strong> - Classic emerald gradient</li>
+          <li><strong>Forest Green</strong> - Deep, professional green</li>
+          <li><strong>Mint Fresh</strong> - Light, modern mint color</li>
+          <li><strong>Teal Ocean</strong> - Blue-green ocean vibes</li>
+          <li><strong>Sage Green</strong> - Soft, elegant sage tone</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
