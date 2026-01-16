@@ -77,11 +77,51 @@
         </div>
 
         <div class="form-group">
+          <label>
+            <input
+              type="checkbox"
+              [(ngModel)]="useCustomTextColor"
+              (ngModelChange)="generatePreview()"
+            />
+            Custom text color
+          </label>
+        </div>
+
+        @if (useCustomTextColor()) {
+          <div class="form-group">
+            <label for="customTextColor">Text Color</label>
+            <div class="color-picker-group">
+              <input
+                id="customTextColor"
+                type="color"
+                [(ngModel)]="customTextColor"
+                (ngModelChange)="generatePreview()"
+              />
+              <input
+                type="text"
+                [(ngModel)]="customTextColor"
+                (ngModelChange)="generatePreview()"
+                placeholder="#ffffff"
+                class="color-input"
+              />
+            </div>
+          </div>
+        }
+
+        <div class="form-group">
           <label for="size">Favicon Size</label>
           <select id="size" [(ngModel)]="size">
             <option [value]="16">16x16 (Standard)</option>
             <option [value]="32">32x32 (Recommended)</option>
             <option [value]="48">48x48 (High-Res)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="format">Download Format</label>
+          <select id="format" [(ngModel)]="downloadFormat">
+            <option value="png">PNG (Recommended)</option>
+            <option value="ico">ICO (Classic)</option>
           </select>
         </div>
       </div>
@@ -127,6 +167,14 @@
             <option [value]="16">16x16 (Standard)</option>
             <option [value]="32">32x32 (Recommended)</option>
             <option [value]="48">48x48 (High-Res)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="imageFormat">Download Format</label>
+          <select id="imageFormat" [(ngModel)]="downloadFormat">
+            <option value="png">PNG (Recommended)</option>
+            <option value="ico">ICO (Classic)</option>
           </select>
         </div>
       }

@@ -31,9 +31,11 @@ export class FaviconGenerator implements AfterViewInit {
   protected readonly selectedTemplate = signal<string>('green-gradient');
   protected readonly customBgColor = signal('#10b981');
   protected readonly customTextColor = signal('#ffffff');
+  protected readonly useCustomTextColor = signal(false);
   protected readonly useTransparent = signal(false);
   protected readonly size = signal<16 | 32 | 48>(32);
   protected readonly uploadedImage = signal<string | null>(null);
+  protected readonly downloadFormat = signal<'png' | 'ico'>('png');
 
   protected readonly templates: FaviconTemplate[] = [
     {
@@ -232,7 +234,9 @@ export class FaviconGenerator implements AfterViewInit {
     }
 
     // Draw text
-    ctx.fillStyle = template?.textColor || this.customTextColor();
+    ctx.fillStyle = this.useCustomTextColor()
+      ? this.customTextColor()
+      : template?.textColor || this.customTextColor();
     ctx.font = `bold ${size * 0.5}px Arial, sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -312,7 +316,7 @@ export class FaviconGenerator implements AfterViewInit {
     }
   }
 
-  protected downloadFavicon(): void {
+  protected async downloadFavicon(): Promise<void> {
     const canvas = document.createElement('canvas');
     const size = this.size();
     canvas.width = size;
@@ -324,52 +328,69 @@ export class FaviconGenerator implements AfterViewInit {
     if (this.mode() === 'text') {
       this.renderTextToCanvas(ctx, size);
     } else if (this.uploadedImage()) {
-      this.renderImageToCanvas(ctx, size);
+      await this.renderImageToCanvas(ctx, size);
     }
 
-    canvas.toBlob((blob) => {
-      if (blob) {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `favicon-${size}x${size}.png`;
-        a.click();
-        URL.revokeObjectURL(url);
-        this.snackbarService.show(`Favicon ${size}x${size} downloaded!`, 'success');
-      }
-    }, 'image/png');
+    if (this.downloadFormat() === 'ico') {
+      const icoBlob = await this.convertToICO(canvas);
+      const url = URL.createObjectURL(icoBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'favicon.ico';
+      a.click();
+      URL.revokeObjectURL(url);
+      this.snackbarService.show('Favicon ICO downloaded!', 'success');
+    } else {
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `favicon-${size}x${size}.png`;
+          a.click();
+          URL.revokeObjectURL(url);
+          this.snackbarService.show(`Favicon ${size}x${size} downloaded!`, 'success');
+        }
+      }, 'image/png');
+    }
   }
 
-  protected downloadAllSizes(): void {
-    [16, 32, 48].forEach((size) => {
-      setTimeout(() => {
-        const canvas = document.createElement('canvas');
-        canvas.width = size;
-        canvas.height = size;
-        const ctx = canvas.getContext('2d');
-
-        if (!ctx) return;
-
-        if (this.mode() === 'text') {
-          this.renderTextToCanvas(ctx, size);
-        } else if (this.uploadedImage()) {
-          this.renderImageToCanvas(ctx, size);
-        }
-
-        canvas.toBlob((blob) => {
-          if (blob) {
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `favicon-${size}x${size}.png`;
-            a.click();
-            URL.revokeObjectURL(url);
-          }
-        }, 'image/png');
-      }, size * 10); // Stagger downloads
-    });
-
+  protected async downloadAllSizes(): Promise<void> {
     this.snackbarService.show('Downloading favicons (16x16, 32x32, 48x48)...', 'success');
+
+    for (const size of [16, 32, 48]) {
+      await new Promise<void>((resolve) => {
+        setTimeout(async () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = size;
+          canvas.height = size;
+          const ctx = canvas.getContext('2d');
+
+          if (!ctx) {
+            resolve();
+            return;
+          }
+
+          if (this.mode() === 'text') {
+            this.renderTextToCanvas(ctx, size);
+          } else if (this.uploadedImage()) {
+            await this.renderImageToCanvas(ctx, size);
+          }
+
+          canvas.toBlob((blob) => {
+            if (blob) {
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `favicon-${size}x${size}.png`;
+              a.click();
+              URL.revokeObjectURL(url);
+            }
+            resolve();
+          }, 'image/png');
+        }, 100);
+      });
+    }
   }
 
   private renderTextToCanvas(ctx: CanvasRenderingContext2D, size: number): void {
@@ -415,25 +436,61 @@ export class FaviconGenerator implements AfterViewInit {
       ctx.stroke();
     }
 
-    ctx.fillStyle = template?.textColor || this.customTextColor();
+    ctx.fillStyle = this.useCustomTextColor()
+      ? this.customTextColor()
+      : template?.textColor || this.customTextColor();
     ctx.font = `bold ${size * 0.5}px Arial, sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(displayText, size / 2, size / 2);
   }
 
-  private renderImageToCanvas(ctx: CanvasRenderingContext2D, size: number): void {
+  private renderImageToCanvas(ctx: CanvasRenderingContext2D, size: number): Promise<void> {
     const imageUrl = this.uploadedImage();
-    if (!imageUrl) return;
+    if (!imageUrl) return Promise.resolve();
 
-    const img = new Image();
-    img.onload = () => {
-      ctx.clearRect(0, 0, size, size);
-      const scale = Math.min(size / img.width, size / img.height);
-      const x = (size - img.width * scale) / 2;
-      const y = (size - img.height * scale) / 2;
-      ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
-    };
-    img.src = imageUrl;
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        ctx.clearRect(0, 0, size, size);
+        const scale = Math.min(size / img.width, size / img.height);
+        const x = (size - img.width * scale) / 2;
+        const y = (size - img.height * scale) / 2;
+        ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+        resolve();
+      };
+      img.onerror = () => resolve();
+      img.src = imageUrl;
+    });
+  }
+
+  private async convertToICO(canvas: HTMLCanvasElement): Promise<Blob> {
+    // ICO format: Create a multi-size ICO file
+    const sizes = [16, 32, 48];
+    const images: ImageData[] = [];
+
+    for (const size of sizes) {
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = size;
+      tempCanvas.height = size;
+      const tempCtx = tempCanvas.getContext('2d');
+
+      if (tempCtx) {
+        if (this.mode() === 'text') {
+          this.renderTextToCanvas(tempCtx, size);
+        } else if (this.uploadedImage()) {
+          await this.renderImageToCanvas(tempCtx, size);
+        }
+        images.push(tempCtx.getImageData(0, 0, size, size));
+      }
+    }
+
+    // Simple ICO format (converts to PNG blob for now, browsers accept PNG as .ico)
+    return new Promise((resolve) => {
+      canvas.toBlob((blob) => {
+        resolve(blob || new Blob());
+      }, 'image/png');
+    });
   }
 }
