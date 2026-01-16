@@ -244,7 +244,16 @@
         </div>
 
         <div class="form-group">
-          <label for="popularEmojis">Popular Emojis</label>
+          <label for="popularEmojis"
+            >Popular Emojis
+            <a
+              href="https://getemoji.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="emoji-link"
+              >(More at getemoji.com)</a
+            >
+          </label>
           <input type="hidden" id="popularEmojis" [value]="emoji()" />
           <div class="emoji-grid">
             @for (emojiItem of popularEmojis; track emojiItem) {
