@@ -1,0 +1,360 @@
+<div class="converter-container">
+  <div class="header-section">
+    <h1>PC77 Point Code Converter</h1>
+    <div class="animated-icon">📡</div>
+    <p class="subtitle-header">Nokia R4 Network SS7 Point Code Conversion</p>
+  </div>
+
+  <div class="card">
+    <div class="controls">
+      <div class="mode-toggle">
+        <button [class.active]="mode() === 'toPC77'" (click)="mode.set('toPC77')" class="mode-btn">
+          Decimal → PC77
+        </button>
+        <button [class.active]="mode() === 'toDec'" (click)="mode.set('toDec')" class="mode-btn">
+          PC77 → Decimal
+        </button>
+      </div>
+      <div class="button-group">
+        <button (click)="swapMode()" class="btn-secondary">⇄ Swap</button>
+        <button (click)="clearAll()" class="btn-secondary">🗑️ Clear</button>
+        <button (click)="loadSample()" class="btn-secondary">📄 Sample</button>
+      </div>
+    </div>
+  </div>
+
+  @if (mode() === 'toPC77') {
+    <div class="conversion-grid">
+      <div class="card input-panel">
+        <h2>📊 Decimal Input</h2>
+        <p class="hint">Enter a decimal number (0 - 16383)</p>
+        <input
+          type="number"
+          [(ngModel)]="decimalInput"
+          placeholder="e.g., 1234"
+          min="0"
+          max="16383"
+          class="value-input"
+          aria-label="Decimal input"
+        />
+      </div>
+
+      <div class="card output-panel">
+        <div class="panel-header">
+          <h2>📡 PC77 Output</h2>
+          <button
+            (click)="copyResult()"
+            [disabled]="!pc77Result() || pc77Result().includes('Invalid')"
+            class="btn-copy"
+          >
+            📋 Copy
+          </button>
+        </div>
+        <div class="result-display" [class.error]="pc77Result().includes('Invalid')">
+          {{ pc77Result() || 'PC77 will appear here...' }}
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="conversion-grid">
+      <div class="card input-panel">
+        <h2>📡 PC77 Input</h2>
+        <p class="hint">Enter PC77 format (e.g., 9-82)</p>
+        <input
+          type="text"
+          [(ngModel)]="pc77Input"
+          placeholder="e.g., 9-82"
+          pattern="[0-9]+-[0-9]+"
+          class="value-input"
+          aria-label="PC77 input"
+        />
+      </div>
+
+      <div class="card output-panel">
+        <div class="panel-header">
+          <h2>📊 Decimal Output</h2>
+          <button
+            (click)="copyResult()"
+            [disabled]="!decimalResult() || decimalResult().includes('Invalid')"
+            class="btn-copy"
+          >
+            📋 Copy
+          </button>
+        </div>
+        <div class="result-display" [class.error]="decimalResult().includes('Invalid')">
+          {{ decimalResult() || 'Decimal will appear here...' }}
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (binaryRepresentation(); as binary) {
+    <div class="card">
+      <h2>🔢 Binary Representation</h2>
+      <div class="binary-breakdown">
+        <div class="binary-item">
+          <span class="binary-label">Original Binary:</span>
+          <code class="binary-value">{{ binary.original }}</code>
+        </div>
+        <div class="binary-item">
+          <span class="binary-label">14-bit Padded:</span>
+          <code class="binary-value padded">{{ binary.padded }}</code>
+        </div>
+        <div class="binary-split">
+          <div class="binary-part">
+            <span class="binary-label">First 7 bits:</span>
+            <code class="binary-value first">{{ binary.first7 }}</code>
+            <span class="decimal-equiv">= {{ parseInt(binary.first7, 2) }}</span>
+          </div>
+          <div class="separator">-</div>
+          <div class="binary-part">
+            <span class="binary-label">Second 7 bits:</span>
+            <code class="binary-value second">{{ binary.second7 }}</code>
+            <span class="decimal-equiv">= {{ parseInt(binary.second7, 2) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <div class="info-card">
+    <h3>📚 What is PC77 (Point Code 77)?</h3>
+    <p>
+      <strong>PC77</strong> (Point Code 77) is a signaling point code format used in Nokia's R4
+      network infrastructure for SS7 (Signaling System No. 7) telecommunications networks. It
+      represents a 14-bit point code as two 7-bit decimal numbers separated by a hyphen.
+    </p>
+
+    <h4>🔍 Format Structure</h4>
+    <p><strong>The PC77 format splits a 14-bit point code into two 7-bit segments:</strong></p>
+    <div class="format-box">
+      <p><strong>Format:</strong> XXX-XXX (where each part is 0-127)</p>
+      <p><strong>Examples:</strong></p>
+      <ul>
+        <li>Point Code 100 = <code>0-100</code></li>
+        <li>Point Code 5000 = <code>39-8</code></li>
+        <li>Point Code 16383 = <code>127-127</code> (maximum value)</li>
+      </ul>
+    </div>
+
+    <ul>
+      <li><strong>Total Bits:</strong> 14 bits</li>
+      <li><strong>Representation:</strong> Two 7-bit segments (0-127 each)</li>
+      <li><strong>Format:</strong> [First 7 bits] - [Second 7 bits]</li>
+    </ul>
+
+    <h4>📡 SS7 (Signaling System No. 7)</h4>
+    <p>
+      SS7 is a set of telephony signaling protocols developed in 1975, which is used to set up and
+      tear down telephone calls in most telecommunications networks worldwide. It also performs:
+    </p>
+    <ul>
+      <li>Call setup, management, and teardown</li>
+      <li>Wireless (cellular) services including roaming and SMS</li>
+      <li>Local number portability (LNP)</li>
+      <li>Toll-free (800/888) and toll (900) services</li>
+      <li>Enhanced call features like caller ID and call forwarding</li>
+    </ul>
+
+    <h4>🏗️ Nokia R4 Network & 3GPP Release 4</h4>
+    <p>
+      <strong>R4</strong> refers to <strong>3GPP Release 4</strong> specifications in mobile
+      telecommunications. The Nokia MSC Server System and related components based on 3GPP Release 4
+      are network elements used in 2G/3G mobile telecommunications infrastructure for
+      circuit-switched voice services. These Release 4 systems separate call control (MSC Server)
+      and media switching (Media Gateway) into distinct network elements, and handle both GSM/EDGE
+      and WCDMA services.
+    </p>
+    <p>
+      <strong>Note:</strong> R4 systems are primarily for voice call control and switching in mobile
+      networks, not specifically signaling gateways or STPs. Point codes are used to uniquely
+      identify signaling points in the SS7 network that supports these voice services.
+    </p>
+    <div class="vendor-info">
+      <h5>📱 Multi-Vendor Environment & Point Code Formats</h5>
+      <p>
+        SS7 networks involve equipment from multiple vendors, each supporting standardized point
+        code formats:
+      </p>
+
+      <h6><strong>Standard Point Code Formats:</strong></h6>
+      <ul>
+        <li><strong>ITU-T (International):</strong> 14 bits in 3-8-3 format (Zone-Area-ID)</li>
+        <li>
+          <strong>ANSI (North America):</strong> 24 bits in 8-8-8 format (Network-Cluster-Member)
+        </li>
+        <li><strong>Japanese Variant:</strong> 16 bits in 7-4-5 format</li>
+        <li><strong>Chinese Variant:</strong> 24 bits in 8-8-8 format</li>
+        <li>
+          <strong>PC77 (7-7 format):</strong> Alternative representation of 14-bit point codes
+        </li>
+      </ul>
+
+      <h6><strong>Vendor Implementations:</strong></h6>
+      <ul>
+        <li>
+          <strong>Nokia:</strong> Supports ITU-T and ANSI standard formats; PC77 is one
+          representation method for 14-bit codes
+        </li>
+        <li><strong>Ericsson:</strong> Implements ITU-T 3-8-3 and ANSI 8-8-8 formats</li>
+        <li>
+          <strong>Huawei:</strong> Supports both ITU and ANSI formats with flexible point code
+          schemes
+        </li>
+        <li>
+          <strong>Cisco:</strong> Implements ANSI and ITU-T point code formats in their STP products
+        </li>
+        <li>
+          <strong>ZTE:</strong> Compatible with international standards for multi-vendor
+          interoperability
+        </li>
+      </ul>
+
+      <p>
+        Despite vendor differences, all systems must interoperate using standardized SS7 protocols
+        defined by ITU-T and ANSI. Point code translation and mapping are often required in
+        multi-vendor networks to ensure seamless communication. The PC77 format (7-7) provides a
+        compact, human-readable representation of 14-bit point codes, easier to read and manage than
+        full binary or decimal notation.
+      </p>
+    </div>
+
+    <h4>❓ Why PC77 is Used</h4>
+    <ul>
+      <li>
+        <strong>Compact Representation:</strong> Easier to read and manage than full binary (14
+        digits) or decimal (up to 5 digits)
+      </li>
+      <li>
+        <strong>Human-Readable Format:</strong> The 7-7 split provides clear segmentation of the
+        14-bit point code
+      </li>
+      <li>
+        <strong>Error Detection:</strong> The two-part format helps identify input errors (each part
+        limited to 0-127)
+      </li>
+      <li>
+        <strong>Alternative to 3-8-3:</strong> Provides a different way to represent 14-bit ITU
+        point codes
+      </li>
+      <li>
+        <strong>Simplified Calculation:</strong> Each segment is exactly 7 bits, making manual
+        conversion straightforward
+      </li>
+      <li>
+        <strong>Legacy Compatibility:</strong> Maintains compatibility with systems using this
+        representation
+      </li>
+    </ul>
+
+    <h4>📏 Range Specification</h4>
+    <div class="range-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Value</th>
+            <th>Explanation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Minimum</strong></td>
+            <td>0 (PC77: 0-0)</td>
+            <td>All bits are zero</td>
+          </tr>
+          <tr>
+            <td><strong>Maximum</strong></td>
+            <td>16383 (PC77: 127-127)</td>
+            <td>2<sup>14</sup> - 1 = 16383</td>
+          </tr>
+          <tr>
+            <td><strong>Each Segment</strong></td>
+            <td>0 - 127</td>
+            <td>2<sup>7</sup> - 1 = 127 per segment</td>
+          </tr>
+          <tr>
+            <td><strong>Total Possible Codes</strong></td>
+            <td>16,384</td>
+            <td>2<sup>14</sup> = 16,384 unique codes</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>💡 Detailed Examples</h4>
+    <div class="examples-grid">
+      <div class="example-box detailed">
+        <strong>Example 1: Point Code 100</strong>
+        <p><strong>Decimal to PC77:</strong></p>
+        <ol>
+          <li>100 in binary = <code>1100100</code> (7 bits)</li>
+          <li>Pad to 14 bits = <code>00000001100100</code></li>
+          <li>Split: <code>0000000</code> | <code>1100100</code></li>
+          <li>Convert: 0 and 100</li>
+          <li>Result: <code>0-100</code></li>
+        </ol>
+      </div>
+      <div class="example-box detailed">
+        <strong>Example 2: Point Code 200</strong>
+        <p><strong>Decimal to PC77:</strong></p>
+        <ol>
+          <li>200 in binary = <code>11001000</code></li>
+          <li>Pad to 14 bits = <code>00000011001000</code></li>
+          <li>Split: <code>0000001</code> | <code>1001000</code></li>
+          <li>Convert: 1 and 72</li>
+          <li>Result: <code>1-72</code></li>
+        </ol>
+      </div>
+      <div class="example-box detailed">
+        <strong>Example 3: Point Code 5000</strong>
+        <p><strong>Decimal to PC77:</strong></p>
+        <ol>
+          <li>5000 in binary = <code>1001110001000</code></li>
+          <li>Pad to 14 bits = <code>01001110001000</code></li>
+          <li>Split: <code>0100111</code> | <code>0001000</code></li>
+          <li>Convert: 39 and 8</li>
+          <li>Result: <code>39-8</code></li>
+        </ol>
+      </div>
+      <div class="example-box detailed">
+        <strong>Example 4: PC77 127-127</strong>
+        <p><strong>PC77 to Decimal:</strong></p>
+        <ol>
+          <li>Split: 127 and 127</li>
+          <li>127 in binary = <code>1111111</code> (7 bits)</li>
+          <li>Concatenate: <code>11111111111111</code></li>
+          <li>Convert to decimal: 16383</li>
+          <li>Result: <code>16383</code> (max 14-bit value)</li>
+        </ol>
+      </div>
+    </div>
+
+    <h4>⚙️ Conversion Process</h4>
+    <div class="process-box">
+      <h5>Decimal to PC77:</h5>
+      <ol>
+        <li>Convert decimal number to binary</li>
+        <li>Pad with leading zeros to make it 14 bits</li>
+        <li>Split into two 7-bit segments</li>
+        <li>Convert each segment to decimal</li>
+        <li>Join with hyphen: [segment1]-[segment2]</li>
+      </ol>
+
+      <h5>PC77 to Decimal:</h5>
+      <ol>
+        <li>Split PC77 by hyphen to get two numbers</li>
+        <li>Convert each number to 7-bit binary</li>
+        <li>Concatenate the two 7-bit binaries (14 bits total)</li>
+        <li>Convert the 14-bit binary to decimal</li>
+      </ol>
+    </div>
+
+    <h4>🔗 Related Standards</h4>
+    <ul>
+      <li><strong>ITU-T Q.704:</strong> Defines SS7 MTP (Message Transfer Part)</li>
+      <li><strong>ANSI T1.111:</strong> North American SS7 standard</li>
+      <li><strong>3GPP TS 23.003:</strong> Mobile network numbering and identification</li>
+    </ul>
+  </div>
+</div>

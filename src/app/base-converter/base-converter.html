@@ -1,0 +1,246 @@
+<div class="converter-container">
+  <div class="header-section">
+    <h1>Base Converter</h1>
+    <div class="animated-icon">🔢</div>
+    <p class="subtitle-header">Convert numbers between Binary, Decimal, Octal, and Hexadecimal</p>
+  </div>
+
+  <div class="card">
+    <h2>🔄 Select Conversion Type</h2>
+    <div class="conversion-grid">
+      @for (conv of conversions; track conv.id) {
+        <button
+          (click)="selectedConversion.set(conv.id)"
+          [class.active]="selectedConversion() === conv.id"
+          class="conversion-btn"
+        >
+          {{ conv.label }}
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (currentConversion(); as conv) {
+    <div class="card input-section">
+      <h2>📝 Input {{ conv.fromName }}</h2>
+      <div class="input-controls">
+        <input
+          type="text"
+          [(ngModel)]="input"
+          [placeholder]="conv.placeholder"
+          class="value-input"
+          [attr.aria-label]="conv.fromName + ' input'"
+        />
+        <div class="button-group">
+          <button (click)="clearInput()" class="btn-secondary">🗑️ Clear</button>
+          <button (click)="loadSample()" class="btn-secondary">📄 Sample</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card output-section">
+      <div class="panel-header">
+        <h2>✅ {{ conv.toName }} Output</h2>
+        <button
+          (click)="copyResult()"
+          [disabled]="!result() || result().includes('Invalid') || result().includes('error')"
+          class="btn-copy"
+        >
+          📋 Copy
+        </button>
+      </div>
+      <div
+        class="result-display"
+        [class.error]="result().includes('Invalid') || result().includes('error')"
+      >
+        {{ result() || 'Result will appear here...' }}
+      </div>
+    </div>
+  }
+
+  @if (breakdown(); as data) {
+    <div class="card breakdown-section">
+      <h2>🔍 Conversion Breakdown</h2>
+      <div class="breakdown-grid">
+        <div class="breakdown-item">
+          <span class="label">Input ({{ data.inputName }}):</span>
+          <code class="value">{{ data.input }}</code>
+        </div>
+        <div class="breakdown-item">
+          <span class="label">Decimal Value:</span>
+          <code class="value">{{ data.decimal }}</code>
+        </div>
+        <div class="breakdown-item">
+          <span class="label">Binary (Base 2):</span>
+          <code class="value binary">{{ data.binary }}</code>
+        </div>
+        <div class="breakdown-item">
+          <span class="label">Octal (Base 8):</span>
+          <code class="value octal">{{ data.octal }}</code>
+        </div>
+        <div class="breakdown-item">
+          <span class="label">Decimal (Base 10):</span>
+          <code class="value decimal">{{ data.decimal }}</code>
+        </div>
+        <div class="breakdown-item">
+          <span class="label">Hexadecimal (Base 16):</span>
+          <code class="value hex">{{ data.hex }}</code>
+        </div>
+      </div>
+    </div>
+  }
+
+  <div class="info-card">
+    <h3>📚 Number Base Systems</h3>
+
+    <h4>🔢 Binary (Base 2)</h4>
+    <div class="base-info">
+      <p><strong>Digits:</strong> 0, 1</p>
+      <p><strong>Use Cases:</strong> Computer systems, digital electronics, programming</p>
+      <p><strong>Example:</strong> 1010 (binary) = 10 (decimal)</p>
+      <p><strong>Prefixes:</strong> 0b or B (e.g., 0b1010)</p>
+    </div>
+
+    <h4>🔟 Decimal (Base 10)</h4>
+    <div class="base-info">
+      <p><strong>Digits:</strong> 0, 1, 2, 3, 4, 5, 6, 7, 8, 9</p>
+      <p><strong>Use Cases:</strong> Everyday counting, mathematics, human-readable numbers</p>
+      <p><strong>Example:</strong> 255 (decimal) = FF (hexadecimal)</p>
+      <p><strong>Standard:</strong> Most common number system for general use</p>
+    </div>
+
+    <h4>🎱 Octal (Base 8)</h4>
+    <div class="base-info">
+      <p><strong>Digits:</strong> 0, 1, 2, 3, 4, 5, 6, 7</p>
+      <p><strong>Use Cases:</strong> Unix file permissions, legacy computing systems</p>
+      <p><strong>Example:</strong> 377 (octal) = 255 (decimal) = FF (hex)</p>
+      <p><strong>Prefixes:</strong> 0o or leading 0 (e.g., 0o377 or 0377)</p>
+    </div>
+
+    <h4>🔠 Hexadecimal (Base 16)</h4>
+    <div class="base-info">
+      <p><strong>Digits:</strong> 0-9, A-F (where A=10, B=11, C=12, D=13, E=14, F=15)</p>
+      <p>
+        <strong>Use Cases:</strong> Colors (#FF5733), memory addresses, MAC addresses, hash values
+      </p>
+      <p><strong>Example:</strong> FF (hexadecimal) = 255 (decimal) = 11111111 (binary)</p>
+      <p><strong>Prefixes:</strong> 0x or # (e.g., 0xFF or #FF)</p>
+    </div>
+
+    <h4>🧮 Conversion Formulas</h4>
+    <div class="formula-box">
+      <h5>Binary to Decimal:</h5>
+      <p>Multiply each bit by 2<sup>position</sup> (from right, starting at 0) and sum:</p>
+      <p><code>1011₂ = (1×2³) + (0×2²) + (1×2¹) + (1×2⁰) = 8 + 0 + 2 + 1 = 11₁₀</code></p>
+
+      <h5>Decimal to Binary:</h5>
+      <p>Divide by 2 repeatedly, collect remainders in reverse:</p>
+      <p><code>13 ÷ 2 = 6 R:1 → 6 ÷ 2 = 3 R:0 → 3 ÷ 2 = 1 R:1 → 1 ÷ 2 = 0 R:1 → 1101₂</code></p>
+
+      <h5>Hexadecimal to Decimal:</h5>
+      <p>Multiply each digit by 16<sup>position</sup> and sum:</p>
+      <p><code>2F₁₆ = (2×16¹) + (15×16⁰) = 32 + 15 = 47₁₀</code></p>
+
+      <h5>Binary to Hexadecimal:</h5>
+      <p>Group binary digits in sets of 4 (from right) and convert each group:</p>
+      <p><code>11111010₂ = 1111 1010 = F A = FA₁₆</code></p>
+    </div>
+
+    <h4>💡 Common Examples</h4>
+    <div class="examples-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Decimal</th>
+            <th>Binary</th>
+            <th>Octal</th>
+            <th>Hexadecimal</th>
+            <th>Usage Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+            <td>False, OFF, null</td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>1</td>
+            <td>1</td>
+            <td>1</td>
+            <td>True, ON</td>
+          </tr>
+          <tr>
+            <td>8</td>
+            <td>1000</td>
+            <td>10</td>
+            <td>8</td>
+            <td>1 byte = 8 bits</td>
+          </tr>
+          <tr>
+            <td>16</td>
+            <td>10000</td>
+            <td>20</td>
+            <td>10</td>
+            <td>Hex digit F + 1</td>
+          </tr>
+          <tr>
+            <td>255</td>
+            <td>11111111</td>
+            <td>377</td>
+            <td>FF</td>
+            <td>Max 8-bit value, RGB color component</td>
+          </tr>
+          <tr>
+            <td>256</td>
+            <td>100000000</td>
+            <td>400</td>
+            <td>100</td>
+            <td>2<sup>8</sup>, byte boundary</td>
+          </tr>
+          <tr>
+            <td>511</td>
+            <td>111111111</td>
+            <td>777</td>
+            <td>1FF</td>
+            <td>Unix permission rwxrwxrwx</td>
+          </tr>
+          <tr>
+            <td>1024</td>
+            <td>10000000000</td>
+            <td>2000</td>
+            <td>400</td>
+            <td>1 KB (2<sup>10</sup> bytes)</td>
+          </tr>
+          <tr>
+            <td>4096</td>
+            <td>1000000000000</td>
+            <td>10000</td>
+            <td>1000</td>
+            <td>Memory page size</td>
+          </tr>
+          <tr>
+            <td>65535</td>
+            <td>1111111111111111</td>
+            <td>177777</td>
+            <td>FFFF</td>
+            <td>Max 16-bit value, port number range</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>🎯 Practical Applications</h4>
+    <ul>
+      <li><strong>Web Colors:</strong> #FF5733 (hex) represents RGB(255, 87, 51)</li>
+      <li><strong>File Permissions:</strong> chmod 755 (octal) = rwxr-xr-x</li>
+      <li><strong>IP Addresses:</strong> 192.168.1.1 (decimal) = C0A80101 (hex)</li>
+      <li><strong>Memory Addresses:</strong> 0x7FFF (hex) = 32767 (decimal)</li>
+      <li><strong>Bit Masks:</strong> 0b11110000 (binary) = 240 (decimal) = F0 (hex)</li>
+      <li><strong>Unicode:</strong> U+1F600 (hex) = 😀 emoji</li>
+    </ul>
+  </div>
+</div>
