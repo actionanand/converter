@@ -54,6 +54,16 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
                   >Secret Cipher</a
                 >
               </li>
+              <li>
+                <a routerLink="/pc77" routerLinkActive="active" (click)="closeMenu()"
+                  >PC77 Converter</a
+                >
+              </li>
+              <li>
+                <a routerLink="/base-converter" routerLinkActive="active" (click)="closeMenu()"
+                  >Base Converter</a
+                >
+              </li>
             </ul>
           </li>
           <li
