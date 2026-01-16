@@ -8,6 +8,9 @@
     <button [class.active]="mode() === 'text'" (click)="mode.set('text'); generatePreview()">
       <span class="icon">T</span> Text Favicon
     </button>
+    <button [class.active]="mode() === 'emoji'" (click)="mode.set('emoji'); generatePreview()">
+      <span class="icon">😀</span> Emoji Favicon
+    </button>
     <button [class.active]="mode() === 'image'" (click)="mode.set('image'); generatePreview()">
       <span class="icon">🖼️</span> Image Favicon
     </button>
@@ -27,6 +30,102 @@
             placeholder="AI"
           />
         </div>
+
+        <div class="form-group">
+          <label for="fontFamily">Font Style</label>
+          <select id="fontFamily" [(ngModel)]="fontFamily" (ngModelChange)="generatePreview()">
+            @for (font of fontFamilies; track font.value) {
+              <option [value]="font.value">{{ font.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>
+            <input
+              type="checkbox"
+              [(ngModel)]="combineEmojiText"
+              (ngModelChange)="generatePreview()"
+            />
+            Combine with emoji
+          </label>
+        </div>
+
+        @if (combineEmojiText()) {
+          <div class="form-group">
+            <label for="emojiSelect">Select Emoji</label>
+            <input
+              id="emojiSelect"
+              type="text"
+              [(ngModel)]="emoji"
+              (ngModelChange)="generatePreview()"
+              maxlength="2"
+              placeholder="🚀"
+              class="emoji-input-small"
+            />
+          </div>
+
+          <div class="form-group">
+            <!-- eslint-disable-next-line @angular-eslint/template/label-has-associated-control -->
+            <label id="position-label">Position & Layout</label>
+            <div class="radio-group" role="radiogroup" aria-labelledby="position-label">
+              <label>
+                <input
+                  type="radio"
+                  name="position"
+                  [checked]="emojiPosition() === 'top'"
+                  (change)="emojiPosition.set('top'); generatePreview()"
+                />
+                🔼 Emoji Top
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="position"
+                  [checked]="emojiPosition() === 'bottom'"
+                  (change)="emojiPosition.set('bottom'); generatePreview()"
+                />
+                🔽 Emoji Bottom
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="position"
+                  [checked]="emojiPosition() === 'left'"
+                  (change)="emojiPosition.set('left'); generatePreview()"
+                />
+                ◀️ Emoji Left
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="position"
+                  [checked]="emojiPosition() === 'right'"
+                  (change)="emojiPosition.set('right'); generatePreview()"
+                />
+                ▶️ Emoji Right
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="position"
+                  [checked]="emojiPosition() === 'text-over-emoji'"
+                  (change)="emojiPosition.set('text-over-emoji'); generatePreview()"
+                />
+                📝 Text Over Emoji
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="position"
+                  [checked]="emojiPosition() === 'emoji-over-text'"
+                  (change)="emojiPosition.set('emoji-over-text'); generatePreview()"
+                />
+                🎨 Emoji Over Text
+              </label>
+            </div>
+          </div>
+        }
 
         <div class="form-group">
           <label for="template-selector">Template</label>
@@ -128,6 +227,107 @@
     </div>
   }
 
+  @if (mode() === 'emoji') {
+    <div class="emoji-mode">
+      <div class="input-section">
+        <div class="form-group">
+          <label for="emojiInput">Selected Emoji</label>
+          <input
+            id="emojiInput"
+            type="text"
+            [(ngModel)]="emoji"
+            (ngModelChange)="generatePreview()"
+            maxlength="2"
+            placeholder="🚀"
+            class="emoji-input"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="popularEmojis">Popular Emojis</label>
+          <input type="hidden" id="popularEmojis" [value]="emoji()" />
+          <div class="emoji-grid">
+            @for (emojiItem of popularEmojis; track emojiItem) {
+              <button
+                class="emoji-btn"
+                [class.active]="emoji() === emojiItem"
+                (click)="emoji.set(emojiItem); generatePreview()"
+                type="button"
+              >
+                {{ emojiItem }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="emojiTemplate">Template</label>
+          <input type="hidden" id="emojiTemplate" [value]="selectedTemplate()" />
+          <div class="template-grid" role="group" aria-labelledby="emojiTemplate">
+            @for (template of templates; track template.id) {
+              <button
+                class="template-btn"
+                [class.active]="selectedTemplate() === template.id"
+                (click)="selectedTemplate.set(template.id); generatePreview()"
+                [style.background]="
+                  template.pattern === 'gradient' && template.gradientEnd
+                    ? 'linear-gradient(135deg, ' +
+                      template.bgColor +
+                      ', ' +
+                      template.gradientEnd +
+                      ')'
+                    : template.bgColor
+                "
+                [style.color]="template.textColor"
+              >
+                <span class="template-name">{{ template.name }}</span>
+                @if (
+                  template.name.toLowerCase().includes('green') ||
+                  template.name.toLowerCase().includes('emerald') ||
+                  template.name.toLowerCase().includes('mint') ||
+                  template.name.toLowerCase().includes('forest') ||
+                  template.name.toLowerCase().includes('lime') ||
+                  template.name.toLowerCase().includes('teal') ||
+                  template.name.toLowerCase().includes('sage')
+                ) {
+                  <span class="green-badge">🌿</span>
+                }
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>
+            <input
+              type="checkbox"
+              [(ngModel)]="useTransparent"
+              (ngModelChange)="generatePreview()"
+            />
+            Use transparent background
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label for="emojiSize">Favicon Size</label>
+          <select id="emojiSize" [(ngModel)]="size">
+            <option [value]="16">16x16 (Standard)</option>
+            <option [value]="32">32x32 (Recommended)</option>
+            <option [value]="48">48x48 (High-Res)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="emojiFormat">Download Format</label>
+          <select id="emojiFormat" [(ngModel)]="downloadFormat">
+            <option value="png">PNG (Recommended)</option>
+            <option value="ico">ICO (Classic)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  }
+
   @if (mode() === 'image') {
     <div class="image-mode">
       <div class="upload-section">
@@ -193,14 +393,22 @@
     <button
       class="download-btn primary"
       (click)="downloadFavicon()"
-      [disabled]="(mode() === 'text' && !text()) || (mode() === 'image' && !uploadedImage())"
+      [disabled]="
+        (mode() === 'text' && !text()) ||
+        (mode() === 'emoji' && !emoji()) ||
+        (mode() === 'image' && !uploadedImage())
+      "
     >
       ⬇️ Download Favicon ({{ size() }}x{{ size() }})
     </button>
     <button
       class="download-btn secondary"
       (click)="downloadAllSizes()"
-      [disabled]="(mode() === 'text' && !text()) || (mode() === 'image' && !uploadedImage())"
+      [disabled]="
+        (mode() === 'text' && !text()) ||
+        (mode() === 'emoji' && !emoji()) ||
+        (mode() === 'image' && !uploadedImage())
+      "
     >
       ⬇️ Download All Sizes (16, 32, 48)
     </button>
@@ -224,7 +432,29 @@
           <li>Keep designs simple and recognizable at small sizes</li>
           <li>Use high contrast between text and background</li>
           <li>Limit to 1-2 characters for text favicons</li>
+          <li>Emojis work great for modern, playful brands</li>
+          <li><strong>Combine emoji + text</strong> for unique, expressive favicons</li>
+          <li>Try different positions: Top, Bottom, Left, Right</li>
+          <li><strong>Text Over Emoji:</strong> Big emoji background with text overlay</li>
+          <li><strong>Emoji Over Text:</strong> Large text with emoji accent at bottom-right</li>
+          <li>Try different font styles for unique looks</li>
           <li>Test on both light and dark browser themes</li>
+        </ul>
+      </div>
+
+      <div class="info-card">
+        <h4>🎭 Font Styles & Emojis</h4>
+        <ul>
+          <li><strong>12 Font Styles:</strong> From elegant serifs to playful cursive</li>
+          <li><strong>80 Popular Emojis:</strong> Quick access to commonly used emojis</li>
+          <li><strong>Emoji + Text Combo:</strong> Combine both for unique designs</li>
+          <li><strong>6 Layout Options:</strong> Top, Bottom, Left, Right, Over, Under</li>
+          <li><strong>Text Over Emoji:</strong> Big emoji (70%) with text overlay</li>
+          <li><strong>Emoji Over Text:</strong> Large text (55%) with emoji accent (30%)</li>
+          <li><strong>Custom Text Color:</strong> Perfect for transparent backgrounds</li>
+          <li><strong>Brush Script:</strong> Cursive, handwritten style</li>
+          <li><strong>Impact:</strong> Strong, bold headlines</li>
+          <li><strong>Georgia:</strong> Classic, elegant serif</li>
         </ul>
       </div>
 

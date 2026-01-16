@@ -26,8 +26,9 @@ export class FaviconGenerator implements AfterViewInit {
 
   private readonly snackbarService = inject(SnackbarService);
 
-  protected readonly mode = signal<'text' | 'image'>('text');
+  protected readonly mode = signal<'text' | 'image' | 'emoji'>('text');
   protected readonly text = signal('AI');
+  protected readonly emoji = signal('🚀');
   protected readonly selectedTemplate = signal<string>('green-gradient');
   protected readonly customBgColor = signal('#10b981');
   protected readonly customTextColor = signal('#ffffff');
@@ -36,6 +37,109 @@ export class FaviconGenerator implements AfterViewInit {
   protected readonly size = signal<16 | 32 | 48>(32);
   protected readonly uploadedImage = signal<string | null>(null);
   protected readonly downloadFormat = signal<'png' | 'ico'>('png');
+  protected readonly fontFamily = signal<string>('Arial, sans-serif');
+  protected readonly combineEmojiText = signal(false);
+  protected readonly emojiPosition = signal<
+    'top' | 'bottom' | 'left' | 'right' | 'text-over-emoji' | 'emoji-over-text'
+  >('top');
+
+  protected readonly fontFamilies = [
+    { name: 'Arial (Default)', value: 'Arial, sans-serif', style: 'normal' },
+    { name: 'Arial Black (Bold)', value: '"Arial Black", sans-serif', style: 'bold' },
+    { name: 'Georgia (Serif)', value: 'Georgia, serif', style: 'elegant' },
+    { name: 'Courier New (Mono)', value: '"Courier New", monospace', style: 'tech' },
+    { name: 'Impact (Strong)', value: 'Impact, sans-serif', style: 'strong' },
+    { name: 'Comic Sans (Fun)', value: '"Comic Sans MS", cursive', style: 'playful' },
+    { name: 'Verdana (Clean)', value: 'Verdana, sans-serif', style: 'clean' },
+    { name: 'Times New Roman (Classic)', value: '"Times New Roman", serif', style: 'classic' },
+    { name: 'Trebuchet (Modern)', value: '"Trebuchet MS", sans-serif', style: 'modern' },
+    { name: 'Brush Script (Cursive)', value: '"Brush Script MT", cursive', style: 'cursive' },
+    { name: 'Lucida (Rounded)', value: '"Lucida Sans", sans-serif', style: 'rounded' },
+    { name: 'Palatino (Elegant)', value: '"Palatino Linotype", serif', style: 'elegant' },
+  ];
+
+  protected readonly popularEmojis = [
+    '🚀',
+    '⭐',
+    '💡',
+    '🔥',
+    '💎',
+    '🎯',
+    '✨',
+    '🌟',
+    '🎨',
+    '🎭',
+    '🎪',
+    '🎬',
+    '🎮',
+    '🎲',
+    '🎵',
+    '🎸',
+    '💻',
+    '📱',
+    '⚡',
+    '🔧',
+    '🔨',
+    '⚙️',
+    '🛠️',
+    '🔩',
+    '🌈',
+    '🌸',
+    '🌺',
+    '🌻',
+    '🌼',
+    '🌷',
+    '🌹',
+    '🏵️',
+    '🍀',
+    '🌿',
+    '🍃',
+    '🌱',
+    '🌾',
+    '🌴',
+    '🌳',
+    '🌲',
+    '🐶',
+    '🐱',
+    '🐭',
+    '🐹',
+    '🐰',
+    '🦊',
+    '🐻',
+    '🐼',
+    '❤️',
+    '💚',
+    '💙',
+    '💜',
+    '🧡',
+    '💛',
+    '🤍',
+    '🖤',
+    '😀',
+    '😎',
+    '🤩',
+    '🥳',
+    '😇',
+    '🤗',
+    '🤓',
+    '🧐',
+    '😍',
+    '😘',
+    '🙏🏻',
+    '👌🏻',
+    '👍🏻',
+    '🧒🏻',
+    '👧🏻',
+    '👶🏻',
+    '👨🏻‍💻',
+    '👑',
+    '🌏',
+    '⛅️',
+    '🌙',
+    '🎀',
+    '🪔',
+    '👻',
+  ];
 
   protected readonly templates: FaviconTemplate[] = [
     {
@@ -166,7 +270,7 @@ export class FaviconGenerator implements AfterViewInit {
 
   protected generatePreview(): void {
     setTimeout(() => {
-      if (this.mode() === 'text') {
+      if (this.mode() === 'text' || this.mode() === 'emoji') {
         this.generateTextFavicon();
       } else if (this.uploadedImage()) {
         this.generateImageFavicon();
@@ -233,14 +337,82 @@ export class FaviconGenerator implements AfterViewInit {
       ctx.stroke();
     }
 
-    // Draw text
+    // Draw text or emoji
     ctx.fillStyle = this.useCustomTextColor()
       ? this.customTextColor()
       : template?.textColor || this.customTextColor();
-    ctx.font = `bold ${size * 0.5}px Arial, sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(displayText, size / 2, size / 2);
+
+    if (this.combineEmojiText() && this.mode() === 'text') {
+      // Combined emoji + text mode
+      const position = this.emojiPosition();
+
+      if (position === 'text-over-emoji') {
+        // Big emoji background with text on top
+        const emojiSize = size * 0.7;
+        const textSize = size * 0.35;
+
+        ctx.font = `${emojiSize}px Arial, sans-serif`;
+        ctx.fillText(this.emoji(), size / 2, size / 2);
+
+        ctx.font = `bold ${textSize}px ${this.fontFamily()}`;
+        ctx.fillText(displayText, size / 2, size / 2);
+      } else if (position === 'emoji-over-text') {
+        // Big text background with emoji at bottom right
+        const textSize = size * 0.55;
+        const emojiSize = size * 0.3;
+
+        ctx.font = `bold ${textSize}px ${this.fontFamily()}`;
+        ctx.fillText(displayText, size / 2, size / 2);
+
+        ctx.font = `${emojiSize}px Arial, sans-serif`;
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(this.emoji(), size - size * 0.05, size - size * 0.05);
+      } else {
+        // Top, Bottom, Left, Right positions
+        const emojiSize = size * 0.35;
+        const textSize = size * 0.3;
+        const spacing = size * 0.08;
+
+        if (position === 'top') {
+          ctx.font = `${emojiSize}px Arial, sans-serif`;
+          ctx.fillText(this.emoji(), size / 2, size / 2 - spacing - textSize / 2);
+
+          ctx.font = `bold ${textSize}px ${this.fontFamily()}`;
+          ctx.fillText(displayText, size / 2, size / 2 + spacing + emojiSize / 2);
+        } else if (position === 'bottom') {
+          ctx.font = `bold ${textSize}px ${this.fontFamily()}`;
+          ctx.fillText(displayText, size / 2, size / 2 - spacing - emojiSize / 2);
+
+          ctx.font = `${emojiSize}px Arial, sans-serif`;
+          ctx.fillText(this.emoji(), size / 2, size / 2 + spacing + textSize / 2);
+        } else if (position === 'left') {
+          ctx.font = `${emojiSize}px Arial, sans-serif`;
+          ctx.textAlign = 'right';
+          ctx.fillText(this.emoji(), size / 2 - spacing, size / 2);
+
+          ctx.font = `bold ${textSize}px ${this.fontFamily()}`;
+          ctx.textAlign = 'left';
+          ctx.fillText(displayText, size / 2 + spacing, size / 2);
+        } else if (position === 'right') {
+          ctx.font = `bold ${textSize}px ${this.fontFamily()}`;
+          ctx.textAlign = 'right';
+          ctx.fillText(displayText, size / 2 - spacing, size / 2);
+
+          ctx.font = `${emojiSize}px Arial, sans-serif`;
+          ctx.textAlign = 'left';
+          ctx.fillText(this.emoji(), size / 2 + spacing, size / 2);
+        }
+      }
+    } else if (this.mode() === 'emoji') {
+      ctx.font = `${size * 0.6}px Arial, sans-serif`;
+      ctx.fillText(this.emoji(), size / 2, size / 2);
+    } else {
+      ctx.font = `bold ${size * 0.5}px ${this.fontFamily()}`;
+      ctx.fillText(displayText, size / 2, size / 2);
+    }
   }
 
   private generateImageFavicon(): void {
@@ -325,7 +497,7 @@ export class FaviconGenerator implements AfterViewInit {
 
     if (!ctx) return;
 
-    if (this.mode() === 'text') {
+    if (this.mode() === 'text' || this.mode() === 'emoji') {
       this.renderTextToCanvas(ctx, size);
     } else if (this.uploadedImage()) {
       await this.renderImageToCanvas(ctx, size);
@@ -371,7 +543,7 @@ export class FaviconGenerator implements AfterViewInit {
             return;
           }
 
-          if (this.mode() === 'text') {
+          if (this.mode() === 'text' || this.mode() === 'emoji') {
             this.renderTextToCanvas(ctx, size);
           } else if (this.uploadedImage()) {
             await this.renderImageToCanvas(ctx, size);
@@ -439,10 +611,78 @@ export class FaviconGenerator implements AfterViewInit {
     ctx.fillStyle = this.useCustomTextColor()
       ? this.customTextColor()
       : template?.textColor || this.customTextColor();
-    ctx.font = `bold ${size * 0.5}px Arial, sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(displayText, size / 2, size / 2);
+
+    if (this.combineEmojiText() && this.mode() === 'text') {
+      // Combined emoji + text mode
+      const position = this.emojiPosition();
+
+      if (position === 'text-over-emoji') {
+        // Big emoji background with text on top
+        const emojiSize = size * 0.7;
+        const textSize = size * 0.35;
+
+        ctx.font = `${emojiSize}px Arial, sans-serif`;
+        ctx.fillText(this.emoji(), size / 2, size / 2);
+
+        ctx.font = `bold ${textSize}px ${this.fontFamily()}`;
+        ctx.fillText(displayText, size / 2, size / 2);
+      } else if (position === 'emoji-over-text') {
+        // Big text background with emoji at bottom right
+        const textSize = size * 0.55;
+        const emojiSize = size * 0.3;
+
+        ctx.font = `bold ${textSize}px ${this.fontFamily()}`;
+        ctx.fillText(displayText, size / 2, size / 2);
+
+        ctx.font = `${emojiSize}px Arial, sans-serif`;
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(this.emoji(), size - size * 0.05, size - size * 0.05);
+      } else {
+        // Top, Bottom, Left, Right positions
+        const emojiSize = size * 0.35;
+        const textSize = size * 0.3;
+        const spacing = size * 0.08;
+
+        if (position === 'top') {
+          ctx.font = `${emojiSize}px Arial, sans-serif`;
+          ctx.fillText(this.emoji(), size / 2, size / 2 - spacing - textSize / 2);
+
+          ctx.font = `bold ${textSize}px ${this.fontFamily()}`;
+          ctx.fillText(displayText, size / 2, size / 2 + spacing + emojiSize / 2);
+        } else if (position === 'bottom') {
+          ctx.font = `bold ${textSize}px ${this.fontFamily()}`;
+          ctx.fillText(displayText, size / 2, size / 2 - spacing - emojiSize / 2);
+
+          ctx.font = `${emojiSize}px Arial, sans-serif`;
+          ctx.fillText(this.emoji(), size / 2, size / 2 + spacing + textSize / 2);
+        } else if (position === 'left') {
+          ctx.font = `${emojiSize}px Arial, sans-serif`;
+          ctx.textAlign = 'right';
+          ctx.fillText(this.emoji(), size / 2 - spacing, size / 2);
+
+          ctx.font = `bold ${textSize}px ${this.fontFamily()}`;
+          ctx.textAlign = 'left';
+          ctx.fillText(displayText, size / 2 + spacing, size / 2);
+        } else if (position === 'right') {
+          ctx.font = `bold ${textSize}px ${this.fontFamily()}`;
+          ctx.textAlign = 'right';
+          ctx.fillText(displayText, size / 2 - spacing, size / 2);
+
+          ctx.font = `${emojiSize}px Arial, sans-serif`;
+          ctx.textAlign = 'left';
+          ctx.fillText(this.emoji(), size / 2 + spacing, size / 2);
+        }
+      }
+    } else if (this.mode() === 'emoji') {
+      ctx.font = `${size * 0.6}px Arial, sans-serif`;
+      ctx.fillText(this.emoji(), size / 2, size / 2);
+    } else {
+      ctx.font = `bold ${size * 0.5}px ${this.fontFamily()}`;
+      ctx.fillText(displayText, size / 2, size / 2);
+    }
   }
 
   private renderImageToCanvas(ctx: CanvasRenderingContext2D, size: number): Promise<void> {
@@ -477,7 +717,7 @@ export class FaviconGenerator implements AfterViewInit {
       const tempCtx = tempCanvas.getContext('2d');
 
       if (tempCtx) {
-        if (this.mode() === 'text') {
+        if (this.mode() === 'text' || this.mode() === 'emoji') {
           this.renderTextToCanvas(tempCtx, size);
         } else if (this.uploadedImage()) {
           await this.renderImageToCanvas(tempCtx, size);
