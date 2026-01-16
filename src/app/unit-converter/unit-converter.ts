@@ -1,7 +1,7 @@
 import { Component, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-type ConversionCategory = 'length' | 'temperature' | 'weight' | 'pressure' | 'typography';
+type ConversionCategory = 'length' | 'temperature' | 'weight' | 'pressure' | 'typography' | 'area';
 
 @Component({
   selector: 'app-unit-converter',
@@ -21,6 +21,7 @@ export class UnitConverter {
     { value: 'weight', label: '⚖️ Weight/Mass', icon: '⚖️' },
     { value: 'pressure', label: '💨 Pressure', icon: '💨' },
     { value: 'length', label: '📏 Length/Distance', icon: '📏' },
+    { value: 'area', label: '🏞️ Land/Area Measurement', icon: '🏞️' },
   ] as const;
 
   protected readonly units = computed(() => {
@@ -36,6 +37,8 @@ export class UnitConverter {
         return ['PSI', 'bar', 'Pa', 'kPa', 'atm'];
       case 'length':
         return ['m', 'km', 'cm', 'mm', 'mi', 'yd', 'ft', 'in'];
+      case 'area':
+        return ['sq ft', 'sq m', 'acre', 'hectare', 'cent', 'sq yd', 'sq mi', 'sq km'];
       default:
         return [];
     }
@@ -84,6 +87,8 @@ export class UnitConverter {
         return this.convertPressure(value, from, to);
       case 'length':
         return this.convertLength(value, from, to);
+      case 'area':
+        return this.convertArea(value, from, to);
       default:
         return 0;
     }
@@ -183,5 +188,25 @@ export class UnitConverter {
 
     // Convert from meters to target
     return Math.round((inMeters / (conversions[to] || 1)) * 100000) / 100000;
+  }
+
+  private convertArea(value: number, from: string, to: string): number {
+    // Convert to square meters first
+    let inSqMeters = value;
+    const conversions: Record<string, number> = {
+      'sq m': 1,
+      'sq km': 1000000,
+      'sq ft': 0.092903,
+      'sq yd': 0.836127,
+      'sq mi': 2589988.11,
+      acre: 4046.86,
+      hectare: 10000,
+      cent: 40.4686, // 1 cent = 1/100 acre = 40.4686 sq m
+    };
+
+    inSqMeters = value * (conversions[from] || 1);
+
+    // Convert from square meters to target
+    return Math.round((inSqMeters / (conversions[to] || 1)) * 100000) / 100000;
   }
 }
