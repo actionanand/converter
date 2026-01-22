@@ -59,6 +59,10 @@ export const routes: Routes = [
       import('./favicon-generator/favicon-generator').then((m) => m.FaviconGenerator),
   },
   {
+    path: 'point-code',
+    loadComponent: () => import('./point-code/point-code').then((m) => m.PointCodeConverter),
+  },
+  {
     path: '**',
     redirectTo: '',
   },
