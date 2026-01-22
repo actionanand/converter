@@ -60,6 +60,11 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
                 >
               </li>
               <li>
+                <a routerLink="/point-code" routerLinkActive="active" (click)="closeMenu()"
+                  >Point Code Converter</a
+                >
+              </li>
+              <li>
                 <a routerLink="/base-converter" routerLinkActive="active" (click)="closeMenu()"
                   >Base Converter</a
                 >

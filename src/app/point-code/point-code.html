@@ -1,0 +1,311 @@
+<div class="point-code-container">
+  <div class="header">
+    <h1>SS7 Point Code Converter</h1>
+    <p>Convert SS7 addresses between decimal, hexadecimal, and various grouped formats</p>
+  </div>
+
+  <!-- 14-bit Converter Section -->
+  <section class="converter-section">
+    <h2>14-bit Point Code Converter</h2>
+    <p class="section-description">Standard ITU-T formats and variants (14-bit addressing)</p>
+
+    <div class="converter-card">
+      <div class="input-section">
+        <div class="form-group">
+          <label for="inputBase14">Input Format</label>
+          <select id="inputBase14" [(ngModel)]="inputBase14" (ngModelChange)="clearAll14()">
+            <option value="decimal">Decimal</option>
+            <option value="hexadecimal">Hexadecimal</option>
+            <option value="formatted">Formatted Code</option>
+          </select>
+        </div>
+
+        @if (inputBase14() === 'decimal') {
+          <div class="form-group">
+            <label for="decimalInput14">Decimal Value (0-16383)</label>
+            <input
+              id="decimalInput14"
+              type="number"
+              [(ngModel)]="decimalInput14"
+              placeholder="e.g., 8010"
+              min="0"
+              max="16383"
+            />
+          </div>
+        } @else if (inputBase14() === 'hexadecimal') {
+          <div class="form-group">
+            <label for="hexInput14">Hexadecimal Value</label>
+            <input
+              id="hexInput14"
+              type="text"
+              [(ngModel)]="hexInput14"
+              placeholder="e.g., 1F4A"
+              class="hex-input"
+            />
+          </div>
+        } @else {
+          <div class="form-group">
+            <label for="inputFormat14">Input Code Format</label>
+            <select id="inputFormat14" [(ngModel)]="inputFormat14">
+              @for (format of formats14Bit; track format.id) {
+                <option [value]="format.id">{{ format.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="formattedInput14">Formatted Code (e.g., 62-74)</label>
+            <input
+              id="formattedInput14"
+              type="text"
+              [(ngModel)]="formattedInput14"
+              placeholder="e.g., 62-74"
+              class="formatted-input"
+            />
+          </div>
+        }
+
+        <div class="form-group">
+          <label for="format14">Output Format</label>
+          <select id="format14" [(ngModel)]="selectedFormat14">
+            @for (format of formats14Bit; track format.id) {
+              <option [value]="format.id">{{ format.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="button-group">
+          <button (click)="loadSample14()" class="btn-secondary">Load Sample</button>
+          <button (click)="clearAll14()" class="btn-secondary">Clear</button>
+          <button (click)="copyResult14()" class="btn-primary">Copy Result</button>
+        </div>
+      </div>
+
+      <div class="result-section">
+        @if (result14Bit(); as result) {
+          @if (result.error) {
+            <div class="error-message">{{ result.error }}</div>
+          } @else {
+            <div class="result-card">
+              <div class="result-item">
+                <span class="result-label">Decimal:</span>
+                <span class="result-value">{{ result.decimal }}</span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">Hexadecimal:</span>
+                <span class="result-value">{{ result.hex }}</span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">{{ selectedFormat14() }}:</span>
+                <span class="result-value highlight">{{ result.formatted }}</span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">Binary (14-bit):</span>
+                <span class="result-value binary">{{ result.binary }}</span>
+              </div>
+            </div>
+
+            @if (allConversions14(); as conversions) {
+              <div class="all-conversions">
+                <h3>All Format Conversions</h3>
+                <div class="conversion-grid">
+                  @for (conv of conversions; track conv.formatName) {
+                    <div class="conversion-item">
+                      <span class="format-name">{{ conv.formatName }}:</span>
+                      <span class="format-value">{{ conv.formatted }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          }
+        } @else {
+          <div class="placeholder">Enter a value to see conversion results</div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Extended Formats Section -->
+  <section class="converter-section">
+    <h2>Extended Point Code Converter</h2>
+    <p class="section-description">Regional variants (16-bit and 24-bit addressing)</p>
+
+    <div class="converter-card">
+      <div class="input-section">
+        <div class="form-group">
+          <label for="inputBaseExt">Input Format</label>
+          <select id="inputBaseExt" [(ngModel)]="inputBaseExt" (ngModelChange)="clearAllExt()">
+            <option value="decimal">Decimal</option>
+            <option value="hexadecimal">Hexadecimal</option>
+            <option value="formatted">Formatted Code</option>
+          </select>
+        </div>
+
+        @if (inputBaseExt() === 'decimal') {
+          <div class="form-group">
+            <label for="decimalInputExt">Decimal Value</label>
+            <input
+              id="decimalInputExt"
+              type="number"
+              [(ngModel)]="decimalInputExt"
+              placeholder="e.g., 1234567"
+              min="0"
+            />
+          </div>
+        } @else if (inputBaseExt() === 'hexadecimal') {
+          <div class="form-group">
+            <label for="hexInputExt">Hexadecimal Value</label>
+            <input
+              id="hexInputExt"
+              type="text"
+              [(ngModel)]="hexInputExt"
+              placeholder="e.g., 12D687"
+              class="hex-input"
+            />
+          </div>
+        } @else {
+          <div class="form-group">
+            <label for="inputFormatExt">Input Code Format</label>
+            <select id="inputFormatExt" [(ngModel)]="inputFormatExt">
+              @for (format of formatsExtended; track format.id) {
+                <option [value]="format.id">{{ format.name }} ({{ format.totalBits }}-bit)</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="formattedInputExt">Formatted Code (e.g., 75-37-103)</label>
+            <input
+              id="formattedInputExt"
+              type="text"
+              [(ngModel)]="formattedInputExt"
+              placeholder="e.g., 75-37-103"
+              class="formatted-input"
+            />
+          </div>
+        }
+
+        <div class="form-group">
+          <label for="formatExt">Output Format</label>
+          <select id="formatExt" [(ngModel)]="selectedFormatExt">
+            @for (format of formatsExtended; track format.id) {
+              <option [value]="format.id">{{ format.name }} ({{ format.totalBits }}-bit)</option>
+            }
+          </select>
+        </div>
+
+        <div class="button-group">
+          <button (click)="loadSampleExt()" class="btn-secondary">Load Sample</button>
+          <button (click)="clearAllExt()" class="btn-secondary">Clear</button>
+          <button (click)="copyResultExt()" class="btn-primary">Copy Result</button>
+        </div>
+      </div>
+
+      <div class="result-section">
+        @if (resultExtended(); as result) {
+          @if (result.error) {
+            <div class="error-message">{{ result.error }}</div>
+          } @else {
+            <div class="result-card">
+              <div class="result-item">
+                <span class="result-label">Format:</span>
+                <span class="result-value">{{ result.formatName }}</span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">Description:</span>
+                <span class="result-value">{{ result.description }}</span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">Decimal:</span>
+                <span class="result-value">{{ result.decimal }}</span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">Hexadecimal:</span>
+                <span class="result-value">{{ result.hex }}</span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">Formatted:</span>
+                <span class="result-value highlight">{{ result.formatted }}</span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">Binary:</span>
+                <span class="result-value binary">{{ result.binary }}</span>
+              </div>
+            </div>
+          }
+        } @else {
+          <div class="placeholder">Enter a value to see conversion results</div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Information Section -->
+  <section class="info-section">
+    <h2>Understanding SS7 Point Code Formats</h2>
+
+    <div class="info-card">
+      <h3>Supported Conversion Formats</h3>
+      <ul>
+        <li><strong>Decimal:</strong> Standard base-10 representation</li>
+        <li><strong>Hexadecimal:</strong> Base-16 representation (0-9, A-F)</li>
+        <li>
+          <strong>Grouped formats:</strong> x1-x2-...xn where sum of bit groups equals total bits
+        </li>
+      </ul>
+      <p class="example"><strong>Example:</strong> 1234 (Dec) = 4D2 (Hex) = 9-82 (7-7 format)</p>
+    </div>
+
+    <div class="info-card">
+      <h3>How Point Code Conversion Works</h3>
+      <p>
+        SS7 network addresses can be represented in multiple formats. This tool converts between
+        decimal, hexadecimal, and various grouped binary representations.
+      </p>
+      <p>
+        <strong>What does grouping mean?</strong> When a 14-bit address (e.g., 8010 in decimal) is
+        converted to binary and split into groups, each group represents a portion of the address.
+      </p>
+      <p class="example">
+        <strong>Example with 8010:</strong><br />
+        • Binary (14-bit): 01111101001010<br />
+        • Format 7-7: Split into two 7-bit groups → 0111110 (62) and 1001010 (74) →
+        <strong>62-74</strong><br />
+        • Format 4-3-7: Split into 4+3+7 bits → 0111 (7), 110 (6), 1001010 (74) →
+        <strong>7-6-74</strong><br />
+        • Format 4-3-4-3: Split into 4+3+4+3 bits → 0111 (7), 110 (6), 1001 (9), 010 (2) →
+        <strong>7-6-9-2</strong>
+      </p>
+      <p>
+        The only requirement for grouped formats is that the sum of bit sizes must equal the total
+        address length (e.g., 7+7=14, 8+4+2=14, 3+8+3=14).
+      </p>
+    </div>
+
+    <div class="info-card">
+      <h3>Regional Format Standards</h3>
+      <ul>
+        <li>
+          <strong>ITU-T (International):</strong> 14-bit addressing, commonly 7-7 or 3-8-3 format
+        </li>
+        <li>
+          <strong>ANSI (North America):</strong> 24-bit addressing in 8-8-8 format
+          (Network-Cluster-Member)
+        </li>
+        <li><strong>Japanese Variant:</strong> 16-bit addressing in 7-4-5 format</li>
+        <li><strong>Chinese Variant:</strong> 24-bit addressing in 8-8-8 format</li>
+        <li><strong>Russian Variant:</strong> 24-bit addressing in 5-8-11 format (Zone-Area-ID)</li>
+        <li><strong>Brazilian Variant:</strong> 16-bit addressing in 3-8-5 format</li>
+      </ul>
+    </div>
+
+    <div class="info-card">
+      <h3>Common Use Cases</h3>
+      <p>
+        This converter is essential for telecommunications engineers working with SS7 (Signaling
+        System 7) networks, allowing seamless conversion between different regional addressing
+        schemes and representations used in network configuration, troubleshooting, and
+        documentation.
+      </p>
+    </div>
+  </section>
+</div>
