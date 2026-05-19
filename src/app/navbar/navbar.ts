@@ -100,6 +100,11 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
                   >Lorem Ipsum</a
                 >
               </li>
+              <li>
+                <a routerLink="/table-editor" routerLinkActive="active" (click)="closeMenu()"
+                  >Table Editor</a
+                >
+              </li>
             </ul>
           </li>
           <li

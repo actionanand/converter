@@ -1,0 +1,256 @@
+<div class="table-editor-container">
+  <div class="header">
+    <h1>Table Editor</h1>
+    <p>Create, edit, and convert tables to Markdown, HTML, CSV, JSON, and more</p>
+  </div>
+
+  <!-- Size controls & import -->
+  <div class="controls-bar">
+    <div class="size-controls">
+      <label for="rowInput">Rows</label>
+      <input
+        id="rowInput"
+        type="number"
+        [(ngModel)]="rowCount"
+        min="1"
+        max="100"
+        class="size-input"
+      />
+      <span class="size-sep">×</span>
+      <label for="colInput">Cols</label>
+      <input
+        id="colInput"
+        type="number"
+        [(ngModel)]="colCount"
+        min="1"
+        max="100"
+        class="size-input"
+      />
+      <button class="btn btn-primary btn-sm" (click)="applySize()">Apply</button>
+    </div>
+    <div class="import-controls">
+      <button
+        class="btn btn-outline btn-sm"
+        [class.active]="showPasteInput()"
+        (click)="togglePasteInput()"
+      >
+        📋 Paste Data
+      </button>
+      <button
+        class="btn btn-outline btn-sm"
+        [class.active]="showMarkdownImport()"
+        (click)="toggleMarkdownImport()"
+      >
+        📥 Import Markdown
+      </button>
+    </div>
+  </div>
+
+  @if (showPasteInput()) {
+    <div class="paste-section">
+      <label for="pasteArea">Paste tab-separated, CSV, or markdown table data:</label>
+      <textarea
+        #pasteArea
+        id="pasteArea"
+        [(ngModel)]="pasteText"
+        rows="6"
+        placeholder="Paste your table data here...&#10;e.g. tab-separated, CSV, or markdown table"
+      ></textarea>
+      <div class="paste-actions">
+        <button class="btn btn-primary btn-sm" (click)="applyPaste()">Load into Table</button>
+        <button class="btn btn-outline btn-sm" (click)="showPasteInput.set(false)">Cancel</button>
+      </div>
+    </div>
+  }
+
+  @if (showMarkdownImport()) {
+    <div class="paste-section">
+      <label for="mdImportArea">Paste a Markdown table to load it into the editor:</label>
+      <textarea
+        id="mdImportArea"
+        [(ngModel)]="markdownImportText"
+        rows="6"
+        placeholder="| Name  | Age | City    |&#10;|-------|-----|---------|&#10;| Alice | 30  | London  |&#10;| Bob   | 25  | Paris   |"
+      ></textarea>
+      <div class="paste-actions">
+        <button class="btn btn-primary btn-sm" (click)="applyMarkdownImport()">
+          Import Markdown
+        </button>
+        <button class="btn btn-outline btn-sm" (click)="showMarkdownImport.set(false)">
+          Cancel
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar-group">
+      <button
+        class="toolbar-btn"
+        (click)="undo()"
+        [disabled]="!svc.canUndo()"
+        title="Undo (Ctrl+Z)"
+      >
+        ↩️ Undo
+      </button>
+      <button
+        class="toolbar-btn"
+        (click)="redo()"
+        [disabled]="!svc.canRedo()"
+        title="Redo (Ctrl+Shift+Z)"
+      >
+        ↪️ Redo
+      </button>
+    </div>
+    <div class="toolbar-sep"></div>
+    <div class="toolbar-group">
+      <button class="toolbar-btn" (click)="transpose()" title="Transpose rows and columns">
+        🔄 Transpose
+      </button>
+    </div>
+    <div class="toolbar-sep"></div>
+    <div class="toolbar-group">
+      <button class="toolbar-btn" (click)="toUpperCase()" title="UPPERCASE all cells">
+        AA UPPER
+      </button>
+      <button class="toolbar-btn" (click)="toLowerCase()" title="lowercase all cells">
+        aa lower
+      </button>
+      <button class="toolbar-btn" (click)="capitalize()" title="Capitalize Each Word">
+        Aa Capitalize
+      </button>
+    </div>
+    <div class="toolbar-sep"></div>
+    <div class="toolbar-group">
+      <button class="toolbar-btn" (click)="removeDuplicates()" title="Remove duplicate rows">
+        🗑️ Deduplicate
+      </button>
+      <button
+        class="toolbar-btn"
+        (click)="deleteBlankRows()"
+        title="Delete rows that are completely empty"
+      >
+        ➖ Blank Rows
+      </button>
+      <button
+        class="toolbar-btn"
+        (click)="deleteBlankCols()"
+        title="Delete columns that are completely empty"
+      >
+        ➖ Blank Cols
+      </button>
+      <button class="toolbar-btn danger" (click)="clearTable()" title="Clear all cell contents">
+        🧹 Clear
+      </button>
+    </div>
+  </div>
+
+  <!-- Spreadsheet grid -->
+  <div class="spreadsheet-wrapper">
+    <div class="spreadsheet">
+      <table>
+        <thead>
+          <tr>
+            <th class="row-number-header">#</th>
+            @for (col of rows()[0]; track $index; let ci = $index) {
+              <th class="col-header">{{ getColumnLabel(ci) }}</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track $index; let ri = $index) {
+            <tr>
+              <td class="row-number">{{ ri + 1 }}</td>
+              @for (cell of row; track $index; let ci = $index) {
+                <td class="cell">
+                  <input
+                    type="text"
+                    [value]="cell"
+                    [attr.data-row]="ri"
+                    [attr.data-col]="ci"
+                    (input)="onCellInput(ri, ci, $event)"
+                    (focus)="onCellFocus()"
+                    (keydown)="onCellKeydown($event, ri, ci)"
+                    (paste)="onCellPaste($event, ri, ci)"
+                    [class.header-cell]="ri === 0"
+                    [attr.aria-label]="'Cell ' + getColumnLabel(ci) + (ri + 1)"
+                  />
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Output Format selector -->
+  <div class="output-section">
+    <h3>Table Output</h3>
+    <div class="format-tabs" role="tablist" aria-label="Output format">
+      @for (fmt of outputFormats; track fmt.value) {
+        <button
+          class="format-tab"
+          [class.active]="selectedFormat() === fmt.value"
+          (click)="setFormat(fmt.value)"
+          role="tab"
+          [attr.aria-selected]="selectedFormat() === fmt.value"
+        >
+          {{ fmt.label }}
+        </button>
+      }
+    </div>
+
+    <div class="output-area">
+      <div class="output-actions">
+        <button class="btn btn-primary btn-sm" (click)="copyOutput()" [disabled]="!outputText()">
+          📋 Copy
+        </button>
+        <button
+          class="btn btn-outline btn-sm"
+          (click)="downloadOutput()"
+          [disabled]="!outputText()"
+        >
+          ⬇️ Download
+        </button>
+      </div>
+      <pre class="output-pre"><code>{{ outputText() }}</code></pre>
+    </div>
+  </div>
+
+  <!-- Info section -->
+  <div class="info-section">
+    <h3>About Table Editor</h3>
+    <div class="info-content">
+      <div class="info-card">
+        <h4>📝 Edit</h4>
+        <ul>
+          <li>Click any cell to start editing</li>
+          <li><strong>Tab</strong> to move to the next cell</li>
+          <li><strong>Enter</strong> to move down</li>
+          <li><strong>Ctrl+Z / Ctrl+Shift+Z</strong> to undo/redo</li>
+          <li>Paste tab-separated data directly into cells</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <h4>🔄 Transform</h4>
+        <ul>
+          <li><strong>Transpose</strong> swaps rows and columns</li>
+          <li>Change text case: UPPER, lower, Capitalize</li>
+          <li>Remove duplicate rows or blank rows/columns</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <h4>📤 Export</h4>
+        <ul>
+          <li>
+            Convert to 10 formats: Markdown, HTML, CSV, JSON, XML, YAML, TOML, Jira, LaTeX, ASCII
+          </li>
+          <li>Copy output to clipboard or download as a file</li>
+          <li>Import from Markdown tables or pasted data</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
