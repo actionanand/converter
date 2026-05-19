@@ -59,6 +59,10 @@ export const routes: Routes = [
       import('./favicon-generator/favicon-generator').then((m) => m.FaviconGenerator),
   },
   {
+    path: 'table-editor',
+    loadComponent: () => import('./table-editor/table-editor').then((m) => m.TableEditor),
+  },
+  {
     path: 'point-code',
     loadComponent: () => import('./point-code/point-code').then((m) => m.PointCodeConverter),
   },
