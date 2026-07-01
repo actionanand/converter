@@ -6,7 +6,7 @@ A 4-layer, key-derived encryption system that works across multiple scripts and 
 
 ## Character Pool
 
-Before any encryption happens, a unified **character pool** is built by scanning Unicode code point ranges for all supported scripts and keeping only characters that match `\p{Letter}` (the Unicode letter property). This produces ~900+ characters ordered as:
+Before any encryption happens, a unified **character pool** of exactly **1217 characters** is loaded from a frozen, hard-coded list ordered as:
 
 ```
 [Latin A-Z, a-z, Latin Extended A/B, Latin Extended Additional,
@@ -14,6 +14,8 @@ Before any encryption happens, a unified **character pool** is built by scanning
 ```
 
 Every character in this pool has a fixed index. The cipher operates entirely on these indices — any character **not** in the pool (spaces, numbers, punctuation, symbols) is passed through untouched.
+
+> **Why frozen?** The pool was originally built at runtime by testing each code point against `\p{Letter}`. That regex depends on the JavaScript engine's Unicode/ICU version, so Node 22 produced 1217 letters while Chromium produced 1219. A cipher encoded in one engine then failed to decode in another because the different pool size shifted the entire permutation and modular arithmetic. Hard-coding the list guarantees encode and decode use an identical character set on every engine.
 
 ---
 
@@ -79,11 +81,12 @@ Decoding uses the **inverse permutation** `P⁻¹`, mapping `P[i]` → `i`.
 
 ### Layer 2 — Positional Shift (sub-key 1)
 
-A fresh Mulberry32 sequence seeded with sub-key 1 generates one random shift value per character position:
+A fresh Mulberry32 sequence seeded with sub-key 1 generates one random shift value per **letter** position:
 
 ```
-for each character at position j:
-    shift_j = floor(rng() * N)
+for each character:
+    if not in pool → pass through unchanged, do NOT advance PRNG
+    shift_j = floor(rng() * N)          ← PRNG advances only for letters
     encoded_index = (pool_index + shift_j) % N
 ```
 
@@ -94,6 +97,8 @@ Decoding subtracts the same shift:
 ```
 
 **Effect:** Two identical characters at different positions produce **different** cipher characters. This defeats frequency analysis — a statistical attacker cannot count how often a cipher character appears and map it back to a plaintext character, because the mapping changes at every position.
+
+**PRNG gating:** Non-letter characters (spaces, digits, punctuation, markdown syntax such as `#`, `|`, `>`, `*`) do not advance the PRNG counter. This ensures that when a renderer strips syntax characters from text, the letter stream's PRNG position stays in sync — the cipher can be applied to raw source and then decoded from the rendered HTML output without corruption.
 
 ---
 
@@ -113,7 +118,8 @@ This layer makes the cipher **context-dependent** — the encoding of each chara
 prev = sub-key 3 % N          ← initialization vector
 
 for each character:
-    base_shift = floor(rng() * N)
+    if not in pool → pass through unchanged, do NOT advance PRNG or update prev
+    base_shift = floor(rng() * N)      ← PRNG advances only for letters
     total_shift = (base_shift + prev) % N
 
     on encode:
@@ -125,7 +131,7 @@ for each character:
         prev = encoded_index           ← feed forward the *input* index (= encoded output)
 ```
 
-**Effect:** Changing any single character in the plaintext changes not only its own cipher character but also every character after it in the output. This is the same principle as **CBC (Cipher Block Chaining)** mode in block ciphers, applied here at the character level. It prevents attackers from substituting individual characters in the ciphertext to achieve targeted changes in the plaintext.
+**Effect:** Changing any single character in the plaintext changes not only its own cipher character but also every character after it in the output. Non-letter characters do not advance the PRNG or the feedback state, so they are fully transparent to the cipher stream (same reasoning as Layer 2). This is the same principle as **CBC (Cipher Block Chaining)** mode in block ciphers, applied here at the character level. It prevents attackers from substituting individual characters in the ciphertext to achieve targeted changes in the plaintext.
 
 ---
 
