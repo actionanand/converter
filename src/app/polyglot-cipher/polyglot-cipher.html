@@ -1,0 +1,155 @@
+<div class="converter-container">
+  <div class="header-section">
+    <h1>Polyglot Cipher</h1>
+    <p class="tagline">Multi-language, multi-layer encryption for any script</p>
+    <div class="animated-icon">🌐🔐</div>
+  </div>
+
+  <div class="card">
+    <div class="controls">
+      <div class="mode-toggle">
+        <button [class.active]="mode() === 'encode'" (click)="mode.set('encode')" class="mode-btn">
+          🔒 Encode
+        </button>
+        <button [class.active]="mode() === 'decode'" (click)="mode.set('decode')" class="mode-btn">
+          🔓 Decode
+        </button>
+      </div>
+      <div class="button-group">
+        <button (click)="swapMode()" class="btn-secondary">⇄ Swap</button>
+        <button (click)="clearAll()" class="btn-secondary">🗑️ Clear</button>
+        <button (click)="loadSample()" class="btn-secondary">📄 Sample</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🔑 Secret Key</h2>
+    <p class="subtitle">Enter a secret key. The same key must be used for encoding and decoding.</p>
+    <input
+      type="text"
+      [(ngModel)]="secretKey"
+      placeholder="Enter your secret key..."
+      class="key-input"
+      aria-label="Secret key input"
+    />
+  </div>
+
+  <div class="card scripts-card">
+    <h2>🌐 Supported Scripts</h2>
+    <div class="script-badges">
+      @for (script of supportedScripts; track script) {
+        <span class="badge">{{ script }}</span>
+      }
+    </div>
+    <p class="pool-info">Character pool: {{ poolSize }} letters across all scripts</p>
+  </div>
+
+  <div class="conversion-grid">
+    <div class="card input-panel">
+      <h2>
+        @if (mode() === 'encode') {
+          📝 Plain Text (Input)
+        } @else {
+          🔐 Cipher Text (Input)
+        }
+      </h2>
+      <div class="stats-mini">
+        <span>{{ stats().inputLength }} characters</span>
+        <span>{{ stats().inputWords }} words</span>
+        @if (inputScripts().length > 0) {
+          <span>Scripts: {{ inputScripts().join(', ') }}</span>
+        }
+      </div>
+      <textarea
+        [(ngModel)]="inputText"
+        [placeholder]="
+          mode() === 'encode'
+            ? 'Enter text in any language to encode...'
+            : 'Paste cipher text to decode...'
+        "
+        class="text-input"
+        rows="8"
+        aria-label="Input text"
+      ></textarea>
+    </div>
+
+    <div class="card output-panel">
+      <div class="panel-header">
+        <h2>
+          @if (mode() === 'encode') {
+            🔐 Cipher Text (Output)
+          } @else {
+            📝 Plain Text (Output)
+          }
+        </h2>
+        <button (click)="copyOutput()" [disabled]="!outputText()" class="btn-copy">📋 Copy</button>
+      </div>
+      <div class="stats-mini">
+        <span>{{ stats().outputLength }} characters</span>
+        <span>{{ stats().outputWords }} words</span>
+        @if (outputScripts().length > 0) {
+          <span>Scripts: {{ outputScripts().join(', ') }}</span>
+        }
+      </div>
+      <div class="output-display">
+        {{ outputText() || 'Output will appear here...' }}
+      </div>
+    </div>
+  </div>
+
+  <div class="info-card">
+    <h3>ℹ️ How It Works</h3>
+    <p>
+      The Polyglot Cipher uses a 4-layer encryption algorithm that works across multiple languages
+      and scripts. Unlike simple substitution ciphers, this cipher transforms characters across
+      script boundaries — English text may become Tamil, Hindi, or Kannada characters and vice
+      versa.
+    </p>
+
+    <h4>🔐 Cipher Layers</h4>
+    <ul>
+      <li>
+        <strong>Layer 1 — Global Substitution:</strong> A key-derived permutation shuffles the
+        entire character pool across all scripts
+      </li>
+      <li>
+        <strong>Layer 2 — Positional Shift:</strong> Each character position gets a unique shift
+        value, making identical characters encode differently
+      </li>
+      <li>
+        <strong>Layer 3 — Secondary Substitution:</strong> A second independent permutation adds
+        another layer of scrambling
+      </li>
+      <li>
+        <strong>Layer 4 — Feedback Cipher:</strong> Each character's encoding depends on the
+        previously encoded character, creating cascading unpredictability
+      </li>
+    </ul>
+
+    <h4>🌐 Supported Languages</h4>
+    <ul>
+      <li>English, French, German, Spanish (Latin script + extensions)</li>
+      <li>Hindi (Devanagari), Tamil, Kannada, Telugu, Malayalam</li>
+      <li>Bengali, Gujarati, Gurmukhi, Oriya</li>
+      <li>Diacritical letters: ā, ū, ṇ, ñ, ü, ö, etc.</li>
+    </ul>
+
+    <h4>🔒 Security Notes</h4>
+    <ul>
+      <li><strong>Same key required:</strong> Use the exact same key to decode</li>
+      <li>
+        <strong>Cross-script output:</strong> Input in one script may produce output in another —
+        this is by design
+      </li>
+      <li>
+        <strong>Special characters preserved:</strong> Spaces, numbers, and punctuation pass through
+        unchanged
+      </li>
+      <li>
+        <strong>Position-dependent:</strong> The same letter at different positions produces
+        different cipher characters
+      </li>
+    </ul>
+  </div>
+</div>
