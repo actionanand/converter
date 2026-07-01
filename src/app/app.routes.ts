@@ -46,6 +46,10 @@ export const routes: Routes = [
     loadComponent: () => import('./cipher/cipher').then((m) => m.Cipher),
   },
   {
+    path: 'polyglot-cipher',
+    loadComponent: () => import('./polyglot-cipher/polyglot-cipher').then((m) => m.PolyglotCipher),
+  },
+  {
     path: 'pc77',
     loadComponent: () => import('./pc77/pc77').then((m) => m.Pc77Converter),
   },

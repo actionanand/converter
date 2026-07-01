@@ -55,6 +55,11 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
                 >
               </li>
               <li>
+                <a routerLink="/polyglot-cipher" routerLinkActive="active" (click)="closeMenu()"
+                  >Polyglot Cipher</a
+                >
+              </li>
+              <li>
                 <a routerLink="/pc77" routerLinkActive="active" (click)="closeMenu()"
                   >PC77 Converter</a
                 >
